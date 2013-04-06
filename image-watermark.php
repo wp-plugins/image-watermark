@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library.
-Version: 1.0.0
+Version: 1.0.1
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -700,7 +700,7 @@ class ImageWatermark
 	{
 		// get size and url of watermark
 		$size_type = $opt['df_watermark_image']['watermark_size_type'];
-		$url = $opt['df_watermark_image']['url'];
+		$url = wp_get_attachment_url($opt['df_watermark_image']['url']);
 		$file = pathinfo($url);
 		$ext = $file['extension'];
 

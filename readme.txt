@@ -3,7 +3,7 @@ Contributors: dfactory
 Tags: image, images, picture, watermark, watermarking, protection, image protection, image security
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -43,11 +43,14 @@ No questions yet.
 == Screenshots ==
 
 1. screenshot-1.png
-1. screenshot-2.png
+2. screenshot-2.png
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.1 =
+* Fix: Using image ID instead of image URL during image upload
+
+= 1.0.0 =
 Initial release
 
 == Upgrade Notice ==
