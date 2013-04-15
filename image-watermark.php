@@ -69,7 +69,10 @@ class ImageWatermark
 		add_action('admin_enqueue_scripts', array(&$this, 'watermark_scripts_styles'));
 		add_action('admin_menu', array(&$this, 'watermark_admin_menu'));
 		add_action('wp_footer', array(&$this, 'watermark_no_right_click'));
-
+		
+		//filters
+		add_filter('plugin_row_meta', array(&$this, 'plugin_extend_links'), 10, 2);
+		add_filter('plugin_action_links', array(&$this, 'plugin_settings_link'), 10, 2);
 		// check if post_id is "-1", meaning we're uploading watermark image
 		if(!(array_key_exists('post_id', $_REQUEST) && $_REQUEST['post_id'] == -1))
 		{
@@ -93,10 +96,57 @@ class ImageWatermark
 		return $value;
 	}
 
-
+	
+	/**
+	 * Loads textdomain
+	*/
 	public function load_textdomain()
 	{
 		load_plugin_textdomain('image-watermark', FALSE, basename(dirname(__FILE__)).'/languages');
+	}
+	
+	
+	/**
+	 * Add links to Support Forum
+	*/
+	public function plugin_extend_links($links, $file) 
+	{
+		if (!current_user_can('install_plugins'))
+			return $links;
+	
+		$plugin = plugin_basename(__FILE__);
+		
+		if ($file == $plugin) 
+		{
+			return array_merge(
+				$links,
+				array(sprintf('<a href="http://www.dfactory.eu/support/forum/image-watermark/" target="_blank">%s</a>', __('Support', 'image-watermark')))
+			);
+		}
+		
+		return $links;
+	}
+	
+	
+	/**
+	 * Add links to Settings page
+	*/
+	function plugin_settings_link($links, $file) 
+	{
+		if (!is_admin() || !current_user_can('manage_options'))
+			return $links;
+			
+		static $plugin;
+		
+		$plugin = plugin_basename(__FILE__);
+		
+		if ($file == $plugin) 
+		{
+			$settings_link = sprintf('<a href="%s">%s</a>', admin_url('options-general.php').'?page=watermark-options', __('Settings', 'image-watermark'));
+			array_unshift($links, $settings_link);
+		}
+	
+		return $links;
 	}
 
 

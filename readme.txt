@@ -1,5 +1,6 @@
 === Image Watermark ===
 Contributors: dfactory
+Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, watermark, watermarking, protection, image protection, image security
 Requires at least: 3.5
 Tested up to: 3.5.1
@@ -22,7 +23,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Watermark image preview
 * Set watermark offset
 * Select post types where watermark will be aplied to images or select adding watermark during any image upload
-* Select from 3 methods of aplying watermark size – original, custom or scaled
+* Select from 3 methods of aplying watermark size: original, custom or scaled
 * Set watermark transparency / opacity
 * Protect your images from copying via drag&drop
 * Disable right mouse click on images
