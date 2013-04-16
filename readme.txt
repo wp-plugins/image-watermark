@@ -1,9 +1,10 @@
 === Image Watermark ===
 Contributors: dfactory
+Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, watermark, watermarking, protection, image protection, image security
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.0
+Stable tag: 1.0.2
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -22,7 +23,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Watermark image preview
 * Set watermark offset
 * Select post types where watermark will be aplied to images or select adding watermark during any image upload
-* Select from 3 methods of aplying watermark size – original, custom or scaled
+* Select from 3 methods of aplying watermark size: original, custom or scaled
 * Set watermark transparency / opacity
 * Protect your images from copying via drag&drop
 * Disable right mouse click on images
@@ -43,11 +44,21 @@ No questions yet.
 == Screenshots ==
 
 1. screenshot-1.png
-1. screenshot-2.png
+2. screenshot-2.png
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.2 =
+* New: Add watermark to custom images sizes registered in theme
+* Tweak: Admin notices on settings page if no watermark image selected
+* Tweak: JavaScript enquequing on front-end
+* Tweak: General code cleanup
+* Tweak: Changed label for enabling image protection for logged-in users
+
+= 1.0.1 =
+* Fix: Using image ID instead of image URL during image upload
+
+= 1.0.0 =
 Initial release
 
 == Upgrade Notice ==
