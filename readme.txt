@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, watermark, watermarking, protection, image protection, image security
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -47,6 +47,13 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.0.2 =
+* New: Add watermark to custom images sizes registered in theme
+* Tweak: Admin notices on settings page if no watermark image selected
+* Tweak: JavaScript enquequing on front-end
+* Tweak: General code cleanup
+* Tweak: Changed label for enabling image protection for logged-in users
 
 = 1.0.1 =
 * Fix: Using image ID instead of image URL during image upload
