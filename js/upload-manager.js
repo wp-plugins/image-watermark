@@ -10,11 +10,11 @@ jQuery(document).ready(function($) {
 				button: upload_manager_args.button,
 				multiple: upload_manager_args.multiple,
 				library: {
-					type: 'image'
+					type: ['image/gif', 'image/jpg', 'image/jpeg', 'image/png']
 				}
 			});
 
-			this._frameWatermark.on( 'open', this.updateFrame ).state('library').on( 'select', this.select );
+			this._frameWatermark.on('open', this.updateFrame).state('library').on('select', this.select);
 			return this._frameWatermark;
 		},
 		select: function() {

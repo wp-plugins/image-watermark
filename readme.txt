@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, watermark, watermarking, protection, image protection, image security
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -48,6 +48,15 @@ No questions yet.
 
 == Changelog ==
 
+= 1.0.3 =
+* Fix: Error during upload of file types other than images (png, jpg)
+* Fix: Limit watermark file types to png, gif, jpg
+* Tweak: Validation for watermark size and transparency values
+* Tweak: Remove unnecessary functions
+* Tweak: Code cleanup
+* Tweak: Added more code comments
+* Tweak: Small css changes
+
 = 1.0.2 =
 * New: Add watermark to custom images sizes registered in theme
 * Tweak: Admin notices on settings page if no watermark image selected
@@ -63,4 +72,4 @@ Initial release
 
 == Upgrade Notice ==
 
-The current version of Image Watermark requires WordPress 3.5 or higher. If you use older version of WordPress, you need to upgrade WordPress first.
+Fix: Error during upload of file types other than images (png, jpg)

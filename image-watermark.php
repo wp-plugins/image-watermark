@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library.
-Version: 1.0.2
+Version: 1.0.3
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -35,10 +35,14 @@ class ImageWatermark
 		'x' => array('left', 'center', 'right'),
 		'y' => array('top', 'middle', 'bottom'),
 	);
+	private $_allowed_mime_types = array(
+		'image/jpeg',
+		'image/pjpeg',
+		'image/png'
+	);
 	protected $_options = array(
 		'df_watermark_on' => array(),
-		'df_watermark_cpt_on' => array(),
-		'df_watermark_type' => 'image',
+		'df_watermark_cpt_on' => array('everywhere'),
 		'df_watermark_image' => array(
 			'url' => 0,
 			'width' => 80,
@@ -70,21 +74,11 @@ class ImageWatermark
 		add_action('admin_enqueue_scripts', array(&$this, 'admin_watermark_scripts_styles'));
 		add_action('wp_enqueue_scripts', array(&$this, 'front_watermark_scripts_styles'));
 		add_action('admin_menu', array(&$this, 'watermark_admin_menu'));
-		
+
 		//filters
 		add_filter('plugin_row_meta', array(&$this, 'plugin_extend_links'), 10, 2);
 		add_filter('plugin_action_links', array(&$this, 'plugin_settings_link'), 10, 2);
-
-		//check if post_id is "-1", meaning we're uploading watermark image
-		if(!(array_key_exists('post_id', $_REQUEST) && $_REQUEST['post_id'] == -1))
-		{
-			$watermark_image = $this->get_option('df_watermark_image');
-
-			if(!($watermark_image['plugin_off'] === 0 && $watermark_image['url'] === 0))
-			{
-				add_filter('wp_handle_upload_prefilter', array(&$this, 'delay_upload_filter'), 10, 1);
-			}
-		}
+		add_filter('wp_handle_upload_prefilter', array(&$this, 'delay_upload_filter'), 10, 1);
 	}
 
 
@@ -101,21 +95,25 @@ class ImageWatermark
 
 
 	/**
-	 * Applies watermark everywhere or for specific post type
+	 * Applies watermark everywhere or for specific post types
 	*/
-	public function delay_upload_filter($value)
+	public function delay_upload_filter($file)
 	{
-		if(isset($_REQUEST['post_id']))
+		$option_wi = get_option('df_watermark_image');
+
+		//if plugin is activated and turned on and watermark image is set and uploaded file is an image
+		if($option_wi['plugin_off'] === 0 && $option_wi['url'] !== 0 && isset($_REQUEST['post_id']) && in_array($file['type'], $this->_allowed_mime_types))
 		{
 			$option = get_option('df_watermark_cpt_on');
 
-			if($option[0] === 'everywhere' || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE)
+			//when apply watermark? everywhere or specific custom post types
+			if((isset($option[0]) && $option[0] === 'everywhere') || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE)
 			{
 				add_filter('wp_generate_attachment_metadata', array(&$this, 'apply_watermark'));
 			}
 		}
 
-		return $value;
+		return $file;
 	}
 
 
@@ -223,7 +221,7 @@ class ImageWatermark
 	*/
 	public function front_watermark_scripts_styles()
 	{
-		$options = $this->get_option('df_image_protection');
+		$options = get_option('df_image_protection');
 
 		if(($options['forlogged'] == 0 && is_user_logged_in()) || ($options['draganddrop'] == 0 && $options['rightclick'] == 0))
 		{
@@ -341,14 +339,20 @@ class ImageWatermark
 							{
 								switch($image_option)
 								{
-									case 'width':
-									case 'plugin_off':
 									case 'watermark_size_type':
+										$tmp[$image_option] = (int)(isset($_POST[$option][$image_option]) && in_array($_POST[$option][$image_option], array(0, 1, 2)) ? $_POST[$option][$image_option] : $this->_options[$option][$image_option]);
+										break;
+
+									case 'transparent':
+									case 'width':
+										$tmp[$image_option] = (isset($_POST[$option][$image_option]) ? ($_POST[$option][$image_option] <= 0 ? 0 : ($_POST[$option][$image_option] >= 100 ? 100 : (int)$_POST[$option][$image_option])) : $this->_options[$option][$image_option]);
+										break;
+
+									case 'plugin_off':
 									case 'offset_width':
 									case 'offset_height':
 									case 'absolute_width':
 									case 'absolute_height':
-									case 'transparent':
 										$tmp[$image_option] = (int)(isset($_POST[$option][$image_option]) ? $_POST[$option][$image_option] : $this->_options[$option][$image_option]);
 										break;
 
@@ -397,10 +401,15 @@ class ImageWatermark
 					update_option($option, $value);
 				}
 			}
+
+			echo '
+			<div class="updated">
+				<p>'.__('Settings saved.').'</p>
+			</div>';
 		}
 
-		$watermark_image = $this->get_option('df_watermark_image');
-		$image_protection = $this->get_option('df_image_protection');
+		$watermark_image = get_option('df_watermark_image');
+		$image_protection = get_option('df_image_protection');
 
 		if($watermark_image['plugin_off'] === 0 && $watermark_image['url'] === 0)
 		{
@@ -440,7 +449,7 @@ class ImageWatermark
                             <td class="wr_width">
                                 <fieldset class="wr_width">
                                 	<legend class="screen-reader-text"><span><?php echo __('Enable watermark for', 'image-watermark'); ?></span></legend>
-                                    <?php $watermark_on = array_keys($this->get_option('df_watermark_on')); ?>
+                                    <?php $watermark_on = array_keys(get_option('df_watermark_on')); ?>
                                     <div id="thumbnail-select">
 										<?php foreach($this->_image_sizes as $image_size) : ?>
                                             <input name="df_watermark_on[<?php echo $image_size; ?>]" type="checkbox" id="<?php echo $image_size; ?>" value="1" <?php echo (in_array($image_size, $watermark_on) ? ' checked="checked"' : ''); ?> />
@@ -449,7 +458,7 @@ class ImageWatermark
                                     </div>
                                     <p class="howto"><?php echo __('Check image sizes on which watermark should appear.', 'image-watermark'); ?></p>
 									<legend class="screen-reader-text"><span><?php echo __('Enable watermark for', 'image-watermark'); ?></span></legend>
-                                    <?php $watermark_cpt_on = array_keys($this->get_option('df_watermark_cpt_on'));
+                                    <?php $watermark_cpt_on = array_keys(get_option('df_watermark_cpt_on'));
 									if(in_array('everywhere', $watermark_cpt_on) && count($watermark_cpt_on) === 1)
 									{ $first_checked = TRUE; $second_checked = FALSE; $watermark_cpt_on = array(); }
 									else { $first_checked = FALSE; $second_checked = TRUE; } ?>
@@ -516,7 +525,7 @@ class ImageWatermark
 					?>
 
                     <h3><?php echo __('Watermark image','image-watermark'); ?></h3>
-                    <p class="howto"><?php echo __('Configure your watermark image. Allowed file formats are: jpg, png, gif.','image-watermark'); ?></p>
+                    <p class="howto"><?php echo __('Configure your watermark image. Allowed file formats are: JPEG, PNG, GIF.','image-watermark'); ?></p>
                     <table id="watermark-image-table" class="form-table">
                         <tr valign="top">
                             <th scope="row"><?php echo __('Watermark image','image-watermark'); ?></th>
@@ -654,53 +663,12 @@ class ImageWatermark
 
 
 	/**
-	 * Get option by setting name with default value if option is unexistent
-	 *
-	 * @param string $setting
-	 * @return mixed
-	 */
-	protected function get_option($setting)
-	{
-		if(is_array($this->_options[$setting]))
-		{
-			$options = array_merge($this->_options[$setting], get_option($setting));
-		}
-		else
-		{
-			$options = get_option($setting, $this->_options[$setting]);
-		}
-
-		return $options;
-	}
-
-
-	/**
-	 * Get array with options
-	 *
-	 * @return array
-	 */
-	private function get_options()
-	{
-		$options = array();
-
-		//loop through default options and get user defined options
-		foreach($this->_options as $option => $value)
-		{
-			$options[$option] = $this->get_option($option);
-		}
-
-		return $options;
-	}
-
-
-	/**
 	 * Plugin installation method
 	 */
 	public function activate_watermark()
 	{
 		//record install time
 		add_option('df_watermark_installed', time(), NULL, 'no');
-		add_option('df_watermark_cpt_on', array('everywhere'), NULL, 'no');
 
 		//loop through default options and add them into DB
 		foreach($this->_options as $option => $value)
@@ -720,12 +688,12 @@ class ImageWatermark
 	{
 		//get settings for watermarking
 		$upload_dir = wp_upload_dir();
-		$watermark_on = $this->get_option('df_watermark_on');
+		$watermark_on = get_option('df_watermark_on');
 
-		//loop through image sizes
-		foreach($watermark_on as $image_size => $on)
+		//loop through active image sizes
+		foreach($watermark_on as $image_size => $active_size)
 		{
-			if($on === 1)
+			if($active_size === 1)
 			{
 				switch($image_size)
 				{
@@ -759,32 +727,31 @@ class ImageWatermark
 	* Apply watermark to certain image
 	*
 	* @param string $filepath
-	* @return boolean
 	*/
 	public function do_watermark($filepath)
 	{
+		$options = array();
+
+		//get watermark settings
+		foreach($this->_options as $option => $value)
+		{
+			$options[$option] = get_option($option);
+		}
+
 		//get image mime type
 		$mime_type = wp_check_filetype($filepath);
 		$mime_type = $mime_type['type'];
-		//get watermark settings
-		$options = $this->get_options();
-
-		if($options['df_watermark_image']['plugin_off'] === 1)
-		{
-			return TRUE;
-		}
 
 		//get image resource
-		$image = $this->get_image_resource($filepath, $mime_type);
-
-		if($options['df_watermark_type'] === 'image')
+		if(($image = $this->get_image_resource($filepath, $mime_type)) !== FALSE)
 		{
 			//add watermark image to image
-			$this->add_watermark_image($image, $options);
+			if($this->add_watermark_image($image, $options) !== FALSE)
+			{
+				//save watermarked image
+				$this->save_image_file($image, $mime_type, $filepath);
+			}
 		}
-
-		//save watermarked image
-		return $this->save_image_file($image, $mime_type, $filepath);
 	}
 
 
@@ -800,22 +767,25 @@ class ImageWatermark
 		//get size and url of watermark
 		$size_type = $opt['df_watermark_image']['watermark_size_type'];
 		$url = wp_get_attachment_url($opt['df_watermark_image']['url']);
-		$file = pathinfo($url);
-		$ext = $file['extension'];
+		$watermark_file = getimagesize($url);
 
-		switch($ext)
+		switch($watermark_file['mime'])
 		{
-			case 'jpg':
-			case 'jpeg':
-				$watermark = imagecreatefromjpeg("$url");
+			case 'image/jpeg':
+			case 'image/pjpeg':
+				$watermark = imagecreatefromjpeg($url);
 				break;
 
-			case 'gif':
-				$watermark = imagecreatefromgif("$url");
+			case 'image/gif':
+				$watermark = imagecreatefromgif($url);
+				break;
+
+			case 'image/png':
+				$watermark = imagecreatefrompng($url);
 				break;
 
 			default:
-				$watermark = imagecreatefrompng("$url");
+				return FALSE;
 		}
 
 		$watermark_width = imagesx($watermark);
@@ -823,19 +793,19 @@ class ImageWatermark
 		$img_width = imagesx($image);
 		$img_height = imagesy($image);
 
-		if($size_type == 1) //custom
+		if($size_type === 1) //custom
 		{
 			$w = $opt['df_watermark_image']['absolute_width'];
 			$h = $opt['df_watermark_image']['absolute_height'];
 		}
-		elseif($size_type == 2) //scale
+		elseif($size_type === 2) //scale
 		{
 			$size = $opt['df_watermark_image']['width'] / 100;
 			$ratio = (($img_width * $size) / $watermark_width);
 			$w = ($watermark_width * $ratio);
 			$h = ($watermark_height * $ratio);
 		}
-		else
+		else //original
 		{
 			$size = 1;
 			$w = ($watermark_width * $size);
@@ -901,7 +871,7 @@ class ImageWatermark
 
 
 	/**
-	 * ???
+	 * Creates new image
 	*/
 	private function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $pct)
 	{
@@ -924,8 +894,8 @@ class ImageWatermark
 		$imgInfo = getimagesize($path);
 		$newImg = imagecreateTRUEcolor($nWidth, $nHeight);
 
-		//check if this image is PNG or GIF, then set if transparent
-		if($imgInfo[2] == 1 || $imgInfo[2] == 3)
+		//check if this image is PNG, then set if transparent
+		if($imgInfo[2] === 3)
 		{
 			imagealphablending($newImg, FALSE);
 			imagesavealpha($newImg, TRUE);
@@ -950,16 +920,11 @@ class ImageWatermark
 		switch($mime_type)
 		{
 			case 'image/jpeg':
+			case 'image/pjpeg':
 				return imagecreatefromjpeg($filepath);
 
 			case 'image/png':
 				$res = imagecreatefrompng($filepath);
-				$transparent = imagecolorallocatealpha($res, 255, 255, 254, 127);
-				imagefilledrectangle($res, 0, 0, imagesx($res), imagesy($res), $transparent);
-				return $res;
-
-			case 'image/gif':
-				$res = imagecreatefromgif($filepath);
 				$transparent = imagecolorallocatealpha($res, 255, 255, 254, 127);
 				imagefilledrectangle($res, 0, 0, imagesx($res), imagesy($res), $transparent);
 				return $res;
@@ -983,16 +948,13 @@ class ImageWatermark
 		switch($mime_type)
 		{
 			case 'image/jpeg':
-				return imagejpeg($image, $filepath, apply_filters('jpeg_quality', 90));
+			case 'image/pjpeg':
+				imagejpeg($image, $filepath, apply_filters('jpeg_quality', 90));
+				break;
 
 			case 'image/png':
-				return imagepng($image, $filepath);
-
-			case 'image/gif':
-				return imagegif($image, $filepath);
-
-			default:
-				return FALSE;
+				imagepng($image, $filepath);
+				break;
 		}
 	}
 }
