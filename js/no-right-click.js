@@ -212,3 +212,7 @@ if (document.addEventListener) {
 			df_nrc_action('load');
 	};
 }
+
+
+var df_nrc_extra = norightclick_args.rightclick;
+var df_nrc_drag = norightclick_args.draganddrop;

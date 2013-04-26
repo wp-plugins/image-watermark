@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WordPress Watermark\n"
-"POT-Creation-Date: 2013-03-19 22:56+0100\n"
-"PO-Revision-Date: 2013-03-21 10:12+0100\n"
+"POT-Creation-Date: 2013-04-16 18:16+0100\n"
+"PO-Revision-Date: 2013-04-16 18:16+0100\n"
 "Last-Translator: Bartosz Arendt <info@digitalfactory.pl>\n"
 "Language-Team: dFactory <info@dfactory.pl>\n"
 "Language: English\n"
@@ -15,260 +15,271 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../wordpress-watermark.php:26
+#: ../image-watermark.php:27
 msgid ""
-"Sorry, WordPress Watermark plugin requires at least PHP 5.0 and WP 3.5 or "
-"higher."
+"Sorry, Image Watermark plugin requires at least PHP 5.0 and WP 3.5 or higher."
 msgstr ""
 
-#: ../wordpress-watermark.php:131
+#: ../image-watermark.php:145
+msgid "Support"
+msgstr ""
+
+#: ../image-watermark.php:167
+msgid "Settings"
+msgstr ""
+
+#: ../image-watermark.php:206
 msgid "Select watermark"
 msgstr ""
 
-#: ../wordpress-watermark.php:132
+#: ../image-watermark.php:207 ../image-watermark.php:554
 msgid "Original size"
 msgstr ""
 
-#: ../wordpress-watermark.php:134
+#: ../image-watermark.php:208 ../image-watermark.php:548
+msgid "Watermak has not been selected yet."
+msgstr ""
+
+#: ../image-watermark.php:210
 msgid "Add watermark"
 msgstr ""
 
-#: ../wordpress-watermark.php:149
-msgid "WordPress Watermark Options"
+#: ../image-watermark.php:251
+msgid "Image Watermark Options"
 msgstr ""
 
-#: ../wordpress-watermark.php:150
+#: ../image-watermark.php:252
 msgid "Watermark"
 msgstr ""
 
-#: ../wordpress-watermark.php:312
-msgid "WordPress Watermark will not work properly without GD PHP extension."
+#: ../image-watermark.php:278
+msgid "Image Watermark will not work properly without GD PHP extension."
 msgstr ""
 
-#: ../wordpress-watermark.php:333
-msgid "WordPress Watermark Settings"
+#: ../image-watermark.php:409
+msgid "Watermarks will not be applied when <b>watermark image is not set</b>."
 msgstr ""
 
-#: ../wordpress-watermark.php:337
+#: ../image-watermark.php:415
+msgid "Image Watermark Settings"
+msgstr ""
+
+#: ../image-watermark.php:419
 msgid "General settings"
 msgstr ""
 
-#: ../wordpress-watermark.php:340
+#: ../image-watermark.php:422
 msgid "Enable watermark"
 msgstr ""
 
-#: ../wordpress-watermark.php:343 ../wordpress-watermark.php:465
-#: ../wordpress-watermark.php:482 ../wordpress-watermark.php:494
+#: ../image-watermark.php:425 ../image-watermark.php:565
+#: ../image-watermark.php:582 ../image-watermark.php:594
 msgid "Width"
 msgstr ""
 
-#: ../wordpress-watermark.php:345
+#: ../image-watermark.php:427
 msgid "on"
 msgstr ""
 
-#: ../wordpress-watermark.php:347
+#: ../image-watermark.php:429
 msgid "off"
 msgstr ""
 
-#: ../wordpress-watermark.php:350
+#: ../image-watermark.php:432
 msgid "Enable or disable watermark for uploaded images."
 msgstr ""
 
-#: ../wordpress-watermark.php:357 ../wordpress-watermark.php:360
-#: ../wordpress-watermark.php:369
+#: ../image-watermark.php:439 ../image-watermark.php:442
+#: ../image-watermark.php:451
 msgid "Enable watermark for"
 msgstr ""
 
-#: ../wordpress-watermark.php:368
+#: ../image-watermark.php:450
 msgid "Check image sizes on which watermark should appear."
 msgstr ""
 
-#: ../wordpress-watermark.php:375
+#: ../image-watermark.php:457
 msgid "everywhere"
 msgstr ""
 
-#: ../wordpress-watermark.php:376
+#: ../image-watermark.php:458
 msgid "on selected post types only"
 msgstr ""
 
-#: ../wordpress-watermark.php:384
+#: ../image-watermark.php:466
 msgid ""
 "Check custom post types on which watermark should be applied to uploaded "
 "images."
 msgstr ""
 
-#: ../wordpress-watermark.php:390
+#: ../image-watermark.php:472
 msgid "Watermark position"
 msgstr ""
 
-#: ../wordpress-watermark.php:393 ../wordpress-watermark.php:396
+#: ../image-watermark.php:475 ../image-watermark.php:478
 msgid "Watermark alignment"
 msgstr ""
 
-#: ../wordpress-watermark.php:409
+#: ../image-watermark.php:491
 msgid "Choose the position of watermark image."
 msgstr ""
 
-#: ../wordpress-watermark.php:414 ../wordpress-watermark.php:417
+#: ../image-watermark.php:496 ../image-watermark.php:499
 msgid "Watermark offset"
 msgstr ""
 
-#: ../wordpress-watermark.php:418 ../wordpress-watermark.php:483
+#: ../image-watermark.php:500 ../image-watermark.php:583
 msgid "x:"
 msgstr ""
 
-#: ../wordpress-watermark.php:418 ../wordpress-watermark.php:420
-#: ../wordpress-watermark.php:483 ../wordpress-watermark.php:485
+#: ../image-watermark.php:500 ../image-watermark.php:502
+#: ../image-watermark.php:583 ../image-watermark.php:585
 msgid "px"
 msgstr ""
 
-#: ../wordpress-watermark.php:420 ../wordpress-watermark.php:485
+#: ../image-watermark.php:502 ../image-watermark.php:585
 msgid "y:"
 msgstr ""
 
-#: ../wordpress-watermark.php:426 ../wordpress-watermark.php:430
+#: ../image-watermark.php:518 ../image-watermark.php:522
 msgid "Watermark image"
 msgstr ""
 
-#: ../wordpress-watermark.php:427
+#: ../image-watermark.php:519
 msgid ""
 "Configure your watermark image. Allowed file formats are: jpg, png, gif."
 msgstr ""
 
-#: ../wordpress-watermark.php:433
+#: ../image-watermark.php:525
 msgid "Select image"
 msgstr ""
 
-#: ../wordpress-watermark.php:434
+#: ../image-watermark.php:526
 msgid "Turn off image"
 msgstr ""
 
-#: ../wordpress-watermark.php:435
+#: ../image-watermark.php:527
 msgid "You have to save changes after the selection or removal of the image."
 msgstr ""
 
-#: ../wordpress-watermark.php:439
+#: ../image-watermark.php:531
 msgid "Watermark preview"
 msgstr ""
 
-#: ../wordpress-watermark.php:442
+#: ../image-watermark.php:534
 msgid "Watermark Preview"
 msgstr ""
 
-#: ../wordpress-watermark.php:450 ../wordpress-watermark.php:454
-msgid "Watermak has not been selected yet."
-msgstr ""
-
-#: ../wordpress-watermark.php:462
+#: ../image-watermark.php:562
 msgid "Watermark size"
 msgstr ""
 
-#: ../wordpress-watermark.php:467
+#: ../image-watermark.php:567
 msgid "original"
 msgstr ""
 
-#: ../wordpress-watermark.php:469
+#: ../image-watermark.php:569
 msgid "custom"
 msgstr ""
 
-#: ../wordpress-watermark.php:471
+#: ../image-watermark.php:571
 msgid "scaled"
 msgstr ""
 
-#: ../wordpress-watermark.php:474
+#: ../image-watermark.php:574
 msgid "Select method of aplying watermark size."
 msgstr ""
 
-#: ../wordpress-watermark.php:479
+#: ../image-watermark.php:579
 msgid "Watermark custom size"
 msgstr ""
 
-#: ../wordpress-watermark.php:487
+#: ../image-watermark.php:587
 msgid "Those dimensions will be used if \"custom\" method is selected above."
 msgstr ""
 
-#: ../wordpress-watermark.php:491
+#: ../image-watermark.php:591
 msgid "Scale of watermark in relation to image width"
 msgstr ""
 
-#: ../wordpress-watermark.php:497
+#: ../image-watermark.php:597
 msgid ""
 "This value will be used if \"scaled\" method if selected above. <br />Enter "
 "a number ranging from 0 to 100. 100 makes width of watermark image equal to "
 "width of the image it is applied to."
 msgstr ""
 
-#: ../wordpress-watermark.php:501
+#: ../image-watermark.php:601
 msgid "Watermark transparency / opacity"
 msgstr ""
 
-#: ../wordpress-watermark.php:506
+#: ../image-watermark.php:606
 msgid ""
 "Enter a number ranging from 0 to 100. 0 makes watermark image completely "
 "transparent, 100 shows it as is."
 msgstr ""
 
-#: ../wordpress-watermark.php:512
+#: ../image-watermark.php:612
 msgid "Image protection"
 msgstr ""
 
-#: ../wordpress-watermark.php:515
+#: ../image-watermark.php:615
 msgid "Disable right mouse click on images"
 msgstr ""
 
-#: ../wordpress-watermark.php:519
+#: ../image-watermark.php:619
 msgid "Prevent drag and drop"
 msgstr ""
 
-#: ../wordpress-watermark.php:523
-msgid "Disable image protection for logged-in users"
+#: ../image-watermark.php:623
+msgid "Enable image protection for logged-in users also"
 msgstr ""
 
-#: ../wordpress-watermark.php:528
+#: ../image-watermark.php:628
 msgid "Save Changes"
 msgstr ""
 
-#: ../wordpress-watermark.php:534
-msgid "WordPress Watermark"
+#: ../image-watermark.php:634
+msgid "Image Watermark"
 msgstr ""
 
-#: ../wordpress-watermark.php:536
+#: ../image-watermark.php:636
 msgid "Need support?"
 msgstr ""
 
-#: ../wordpress-watermark.php:537
+#: ../image-watermark.php:637
 msgid ""
 "If you are having problems with this plugin, please talk about them in the"
 msgstr ""
 
-#: ../wordpress-watermark.php:537
+#: ../image-watermark.php:637
 msgid "Support forum"
 msgstr ""
 
-#: ../wordpress-watermark.php:539
+#: ../image-watermark.php:639
 msgid "Do you like this plugin?"
 msgstr ""
 
-#: ../wordpress-watermark.php:540
+#: ../image-watermark.php:640
 msgid "Rate it 5 on WordPress.org"
 msgstr ""
 
-#: ../wordpress-watermark.php:541
+#: ../image-watermark.php:641
 msgid "Blog about it & link to the"
 msgstr ""
 
-#: ../wordpress-watermark.php:541
+#: ../image-watermark.php:641
 msgid "plugin page"
 msgstr ""
 
-#: ../wordpress-watermark.php:542
+#: ../image-watermark.php:642
 msgid "Check out our other"
 msgstr ""
 
-#: ../wordpress-watermark.php:542
+#: ../image-watermark.php:642
 msgid "WordPress plugins"
 msgstr ""
 
-#: ../wordpress-watermark.php:546
+#: ../image-watermark.php:646
 msgid "Created by"
 msgstr ""
