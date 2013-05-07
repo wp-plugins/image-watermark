@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library.
-Version: 1.0.3
+Version: 1.1.0
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -74,11 +74,78 @@ class ImageWatermark
 		add_action('admin_enqueue_scripts', array(&$this, 'admin_watermark_scripts_styles'));
 		add_action('wp_enqueue_scripts', array(&$this, 'front_watermark_scripts_styles'));
 		add_action('admin_menu', array(&$this, 'watermark_admin_menu'));
+		add_action('load-upload.php', array(&$this, 'apply_watermark_bulk_action'));
+		add_action('admin_notices', array(&$this, 'bulk_admin_notices'));
 
 		//filters
 		add_filter('plugin_row_meta', array(&$this, 'plugin_extend_links'), 10, 2);
 		add_filter('plugin_action_links', array(&$this, 'plugin_settings_link'), 10, 2);
 		add_filter('wp_handle_upload_prefilter', array(&$this, 'delay_upload_filter'), 10, 1);
+	}
+
+
+	/**
+	 * Applies watermark for selected images on media page
+	 */
+	public function apply_watermark_bulk_action()
+	{
+		global $pagenow;
+
+		if($pagenow == 'upload.php')
+		{
+			$opt = get_option('df_watermark_image');
+			$wp_list_table = _get_list_table('WP_Media_List_Table');
+
+			//only if image watermark is turned on
+			if($wp_list_table->current_action() === 'applywatermark' && $opt['plugin_off'] === 0 && $opt['url'] !== 0)
+			{
+				//security check
+				check_admin_referer('bulk-media');
+
+				//do we have selected attachments?
+				if(isset($_REQUEST['media']) && !empty($_REQUEST['media']))
+				{
+					$watermarked = 0;
+
+					foreach($_REQUEST['media'] as $media_id)
+					{
+						$upload_dir = wp_upload_dir();
+						$data = wp_get_attachment_metadata($media_id, FALSE);
+
+						//is this really an image?
+						if(in_array(get_post_mime_type($media_id), $this->_allowed_mime_types) && is_array($data) && getimagesize($upload_dir['basedir'].DIRECTORY_SEPARATOR.$data['file']) !== FALSE)
+						{
+							$this->apply_watermark($data);
+							$watermarked++;
+						}
+					}
+
+					wp_redirect(add_query_arg(array('watermarked' => $watermarked), wp_get_referer()));
+					exit();
+				}
+			}
+			else return;
+		}
+	}
+	
+	
+	/**
+	 * Shows admin notices
+	 */
+	public function bulk_admin_notices()
+	{
+		global $post_type, $pagenow;
+
+		if($pagenow === 'upload.php' && $post_type === 'attachment' && isset($_REQUEST['watermarked']))
+		{
+			if ($_REQUEST['watermarked'] == 0)
+			{
+				echo '<div class="error"><p>'.__('Watermark couldn\'t be applied to selected images or no images were selected.', 'image-watermark').'</p></div>';
+			} elseif ($_REQUEST['watermarked'] > 0)
+			{
+				echo '<div class="updated"><p>'.sprintf(_n('Watermark was succesfully applied to 1 image.', 'Watermark was succesfully applied to %s images.', (int)$_REQUEST['watermarked'], 'image-watermark'), number_format_i18n((int)$_REQUEST['watermarked'])).'</p></div>';
+			}
+		}
 	}
 
 
@@ -105,9 +172,10 @@ class ImageWatermark
 		if($option_wi['plugin_off'] === 0 && $option_wi['url'] !== 0 && isset($_REQUEST['post_id']) && in_array($file['type'], $this->_allowed_mime_types))
 		{
 			$option = get_option('df_watermark_cpt_on');
+			$upload_dir = wp_upload_dir();
 
 			//when apply watermark? everywhere or specific custom post types
-			if((isset($option[0]) && $option[0] === 'everywhere') || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE)
+			if(((isset($option[0], $_REQUEST['name']) && $option[0] === 'everywhere') || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE) && getimagesize($upload_dir['path'].DIRECTORY_SEPARATOR.$_REQUEST['name']) !== FALSE)
 			{
 				add_filter('wp_generate_attachment_metadata', array(&$this, 'apply_watermark'));
 			}
@@ -131,12 +199,12 @@ class ImageWatermark
 	*/
 	public function plugin_extend_links($links, $file) 
 	{
-		if (!current_user_can('install_plugins'))
+		if(!current_user_can('install_plugins'))
 			return $links;
 
 		$plugin = plugin_basename(__FILE__);
-		
-		if ($file == $plugin) 
+
+		if($file == $plugin) 
 		{
 			return array_merge(
 				$links,
@@ -153,14 +221,14 @@ class ImageWatermark
 	*/
 	function plugin_settings_link($links, $file) 
 	{
-		if (!is_admin() || !current_user_can('manage_options'))
+		if(!is_admin() || !current_user_can('manage_options'))
 			return $links;
 
 		static $plugin;
 
 		$plugin = plugin_basename(__FILE__);
 
-		if ($file == $plugin) 
+		if($file == $plugin) 
 		{
 			$settings_link = sprintf('<a href="%s">%s</a>', admin_url('options-general.php').'?page=watermark-options', __('Settings', 'image-watermark'));
 			array_unshift($links, $settings_link);
@@ -175,44 +243,64 @@ class ImageWatermark
 	*/
 	public function admin_watermark_scripts_styles($page)
 	{
-		if($page !== 'settings_page_watermark-options')
-        	return;
+		if($page === 'upload.php')
+		{
+			$opt = get_option('df_watermark_image');
 
-		wp_enqueue_media();
+			if($opt['plugin_off'] === 0 && $opt['url'] !== 0)
+			{
+				wp_enqueue_script(
+					'apply-watermark',
+					plugins_url('/js/apply-watermark.js', __FILE__)
+				);
 
-		wp_enqueue_script(
-			'upload-manager',
-			plugins_url('/js/upload-manager.js', __FILE__)
-		);
+				wp_localize_script(
+					'apply-watermark',
+					'watermark_args',
+					array(
+						'apply_watermark' => __('Apply watermark', 'image-watermark')
+					)
+				);
+			}
+		}
+		elseif($page === 'settings_page_watermark-options')
+		{
+			wp_enqueue_media();
 
-		wp_enqueue_script(
-			'wp-like',
-			plugins_url('js/wp-like.js', __FILE__),
-			array('jquery', 'jquery-ui-core', 'jquery-ui-button')
-		);
+			wp_enqueue_script(
+				'upload-manager',
+				plugins_url('/js/upload-manager.js', __FILE__)
+			);
 
-		wp_enqueue_script(
-			'watermark-admin-script',
-			plugins_url('js/admin.js', __FILE__),
-			array('jquery', 'wp-like')
-		);
+			wp_enqueue_script(
+				'wp-like',
+				plugins_url('js/wp-like.js', __FILE__),
+				array('jquery', 'jquery-ui-core', 'jquery-ui-button')
+			);
 
-		wp_localize_script(
-			'upload-manager',
-			'upload_manager_args',
-			array(
-				'title'			=> __('Select watermark', 'image-watermark'),
-				'originalSize'	=> __('Original size', 'image-watermark'),
-				'noSelectedImg'	=> __('Watermak has not been selected yet.', 'image-watermark'),
-				'frame'			=> 'select',
-				'button'		=> array('text' => __('Add watermark', 'image-watermark')),
-				'multiple'		=> FALSE,
-			)
-		);
+			wp_enqueue_script(
+				'watermark-admin-script',
+				plugins_url('js/admin.js', __FILE__),
+				array('jquery', 'wp-like')
+			);
 
-		wp_enqueue_style('thickbox');
-		wp_enqueue_style('watermark-style', plugins_url('css/style.css', __FILE__));
-		wp_enqueue_style('wp-like-ui-theme', plugins_url('css/wp-like-ui-theme.css', __FILE__));
+			wp_localize_script(
+				'upload-manager',
+				'upload_manager_args',
+				array(
+					'title'			=> __('Select watermark', 'image-watermark'),
+					'originalSize'	=> __('Original size', 'image-watermark'),
+					'noSelectedImg'	=> __('Watermak has not been selected yet.', 'image-watermark'),
+					'frame'			=> 'select',
+					'button'		=> array('text' => __('Add watermark', 'image-watermark')),
+					'multiple'		=> FALSE,
+				)
+			);
+
+			wp_enqueue_style('thickbox');
+			wp_enqueue_style('watermark-style', plugins_url('css/style.css', __FILE__));
+			wp_enqueue_style('wp-like-ui-theme', plugins_url('css/wp-like-ui-theme.css', __FILE__));
+		}
 	}
 
 
@@ -560,7 +648,7 @@ class ImageWatermark
 										{
 											$imageFullSize = wp_get_attachment_image_src($watermark_image['url'], 'full', FALSE);
 											$imgSelectedInfo = getimagesize($imageFullSize[0]);
-											echo __('Original size', 'image-watermark').': <strong>'.$imgSelectedInfo[0].'</strong>px / <strong>'.$imgSelectedInfo[1].'</strong>px';
+											echo __('Original size', 'image-watermark').': '.$imgSelectedInfo[0].' px / '.$imgSelectedInfo[1].' px';
 										}
 										?>
 									</p>
@@ -643,12 +731,12 @@ class ImageWatermark
         	<h3 class="metabox-title"><?php _e('Image Watermark','image-watermark'); ?></h3>
             <div class="inner">
                 <h3><?php _e('Need support?','image-watermark'); ?></h3>
-                <p><?php _e('If you are having problems with this plugin, please talk about them in the','image-watermark'); ?> <a href="http://dfactory.eu/support/" target="_blank" title="<?php _e('Support forum','image-watermark'); ?>"><?php _e('Support forum','image-watermark'); ?></a>.</p>
+                <p><?php _e('If you are having problems with this plugin, please talk about them in the','image-watermark'); ?> <a href="http://dfactory.eu/support/" target="_blank" title="<?php _e('Support forum','image-watermark'); ?>"><?php _e('Support forum','image-watermark'); ?></a></p>
                 <hr />
                 <h3><?php _e('Do you like this plugin?','image-watermark'); ?></h3>
-                <p><?php _e('Rate it 5 on WordPress.org','image-watermark'); ?><br />
-				<?php _e('Blog about it & link to the','image-watermark'); ?> <a href="http://dfactory.eu/plugins/image-watermark/" target="_blank" title="<?php _e('plugin page','image-watermark'); ?>"><?php _e('plugin page','image-watermark'); ?></a>.<br />
-                <?php _e('Check out our other','image-watermark'); ?> <a href="http://dfactory.eu/plugins/" target="_blank" title="<?php _e('WordPress plugins','image-watermark'); ?>"><?php _e('WordPress plugins','image-watermark'); ?></a>.
+                <p><a href="http://wordpress.org/support/view/plugin-reviews/image-watermark?filter=5" target="_blank" title="<?php _e('Rate it 5','image-watermark'); ?>"><?php _e('Rate it 5','image-watermark'); ?></a> <?php _e('on WordPress.org','image-watermark'); ?><br />
+				<?php _e('Blog about it & link to the','image-watermark'); ?> <a href="http://dfactory.eu/plugins/image-watermark/" target="_blank" title="<?php _e('plugin page','image-watermark'); ?>"><?php _e('plugin page','image-watermark'); ?></a><br />
+                <?php _e('Check out our other','image-watermark'); ?> <a href="http://dfactory.eu/plugins/" target="_blank" title="<?php _e('WordPress plugins','image-watermark'); ?>"><?php _e('WordPress plugins','image-watermark'); ?></a>
                 </p>
                 
                 <hr />

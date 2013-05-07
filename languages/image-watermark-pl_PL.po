@@ -2,18 +2,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WordPress Watermark\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-16 18:16+0100\n"
-"PO-Revision-Date: 2013-04-16 18:16+0100\n"
+"POT-Creation-Date: 2013-05-07 14:37+0100\n"
+"PO-Revision-Date: 2013-05-07 14:38+0100\n"
 "Last-Translator: Bartosz Arendt <info@digitalfactory.pl>\n"
 "Language-Team: Digital Factory <info@digitalfactory.pl>\n"
 "Language: pl_PL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e;_n:1,2;esc_attr__;"
+"esc_attr_e\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 "X-Generator: Poedit 1.5.5\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../image-watermark.php:27
@@ -23,96 +25,118 @@ msgstr ""
 "Przykro nam, ale ta wtyczka wymaga PHP w wersji co najmniej 5.0 WordPressa w "
 "wersji 3.5 lub wyższej.."
 
-#: ../image-watermark.php:145
+#: ../image-watermark.php:143
+msgid ""
+"Watermark couldn't be applied to selected images or no images were selected."
+msgstr ""
+"Znak wodny nie został został dodany do wybranych obrazków lub żaden obrazek "
+"nie został wybrany."
+
+#: ../image-watermark.php:146
+#, php-format
+msgid "Watermark was succesfully applied to 1 image."
+msgid_plural "Watermark was succesfully applied to %s images."
+msgstr[0] "Znak wodny został dodany do 1 obrazka."
+msgstr[1] "Znak wodny został dodany do %s obrazków."
+
+#: ../image-watermark.php:211
 msgid "Support"
 msgstr "Forum pomocy"
 
-#: ../image-watermark.php:167
+#: ../image-watermark.php:233
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: ../image-watermark.php:206
+#: ../image-watermark.php:261
+msgid "Apply watermark"
+msgstr "Dodaj znak wodny"
+
+#: ../image-watermark.php:291
 msgid "Select watermark"
 msgstr "Wybierz znak wodny"
 
-#: ../image-watermark.php:207 ../image-watermark.php:554
+#: ../image-watermark.php:292 ../image-watermark.php:651
 msgid "Original size"
 msgstr "Rozmiar oryginalny"
 
-#: ../image-watermark.php:208 ../image-watermark.php:548
+#: ../image-watermark.php:293 ../image-watermark.php:645
 msgid "Watermak has not been selected yet."
 msgstr "Znak wodny nie został jeszcze wybrany."
 
-#: ../image-watermark.php:210
+#: ../image-watermark.php:295
 msgid "Add watermark"
 msgstr "Dodaj znak wodny"
 
-#: ../image-watermark.php:251
+#: ../image-watermark.php:337
 msgid "Image Watermark Options"
 msgstr "Ustawienia znaku wodnego"
 
-#: ../image-watermark.php:252
+#: ../image-watermark.php:338
 msgid "Watermark"
 msgstr "Znak wodny"
 
-#: ../image-watermark.php:278
+#: ../image-watermark.php:364
 msgid "Image Watermark will not work properly without GD PHP extension."
 msgstr ""
 "Znak wodny nie może funkcjonować bez zainstalowanego rozszerzenia GD PHP."
 
-#: ../image-watermark.php:409
+#: ../image-watermark.php:495
+msgid "Settings saved."
+msgstr "Ustawienia zostały zapisane."
+
+#: ../image-watermark.php:506
 msgid "Watermarks will not be applied when <b>watermark image is not set</b>."
 msgstr ""
 "Znak wodny nie zostanie dodany ponieważ <b>nie wybrano obrazka dla znaku "
 "wodnego</b>."
 
-#: ../image-watermark.php:415
+#: ../image-watermark.php:512
 msgid "Image Watermark Settings"
 msgstr "Ustawienia znaku wodnego"
 
-#: ../image-watermark.php:419
+#: ../image-watermark.php:516
 msgid "General settings"
 msgstr "Ustawienia ogólne"
 
-#: ../image-watermark.php:422
+#: ../image-watermark.php:519
 msgid "Enable watermark"
 msgstr "Włącz znak wodny"
 
-#: ../image-watermark.php:425 ../image-watermark.php:565
-#: ../image-watermark.php:582 ../image-watermark.php:594
+#: ../image-watermark.php:522 ../image-watermark.php:662
+#: ../image-watermark.php:679 ../image-watermark.php:691
 msgid "Width"
 msgstr "Szerokość"
 
-#: ../image-watermark.php:427
+#: ../image-watermark.php:524
 msgid "on"
 msgstr "włączony"
 
-#: ../image-watermark.php:429
+#: ../image-watermark.php:526
 msgid "off"
 msgstr "wyłączony"
 
-#: ../image-watermark.php:432
+#: ../image-watermark.php:529
 msgid "Enable or disable watermark for uploaded images."
 msgstr "Włącz lub wyłącz dodawanie znaku wodnego do wgrywanych obrazków."
 
-#: ../image-watermark.php:439 ../image-watermark.php:442
-#: ../image-watermark.php:451
+#: ../image-watermark.php:536 ../image-watermark.php:539
+#: ../image-watermark.php:548
 msgid "Enable watermark for"
 msgstr "Dodawaj znak wodny do"
 
-#: ../image-watermark.php:450
+#: ../image-watermark.php:547
 msgid "Check image sizes on which watermark should appear."
 msgstr "Zaznacz wielkości obrazków dla których ma być dodawany znak wodny."
 
-#: ../image-watermark.php:457
+#: ../image-watermark.php:554
 msgid "everywhere"
 msgstr "wszędzie"
 
-#: ../image-watermark.php:458
+#: ../image-watermark.php:555
 msgid "on selected post types only"
 msgstr "na wybranych typach wpisów"
 
-#: ../image-watermark.php:466
+#: ../image-watermark.php:563
 msgid ""
 "Check custom post types on which watermark should be applied to uploaded "
 "images."
@@ -120,101 +144,101 @@ msgstr ""
 "Zaznacz własne typy wpisów w których znak wodny będzie dodawany do "
 "wgrywanych obrazków."
 
-#: ../image-watermark.php:472
+#: ../image-watermark.php:569
 msgid "Watermark position"
 msgstr "Pozycja znaku wodnego"
 
-#: ../image-watermark.php:475 ../image-watermark.php:478
+#: ../image-watermark.php:572 ../image-watermark.php:575
 msgid "Watermark alignment"
 msgstr "Wyrównanie znaku wodnego"
 
-#: ../image-watermark.php:491
+#: ../image-watermark.php:588
 msgid "Choose the position of watermark image."
 msgstr "Wybierz pozycję znaku wodnego na obrazkach"
 
-#: ../image-watermark.php:496 ../image-watermark.php:499
+#: ../image-watermark.php:593 ../image-watermark.php:596
 msgid "Watermark offset"
 msgstr "Korekcja pozycji"
 
-#: ../image-watermark.php:500 ../image-watermark.php:583
+#: ../image-watermark.php:597 ../image-watermark.php:680
 msgid "x:"
 msgstr "x:"
 
-#: ../image-watermark.php:500 ../image-watermark.php:502
-#: ../image-watermark.php:583 ../image-watermark.php:585
+#: ../image-watermark.php:597 ../image-watermark.php:599
+#: ../image-watermark.php:680 ../image-watermark.php:682
 msgid "px"
 msgstr "pikseli"
 
-#: ../image-watermark.php:502 ../image-watermark.php:585
+#: ../image-watermark.php:599 ../image-watermark.php:682
 msgid "y:"
 msgstr "y:"
 
-#: ../image-watermark.php:518 ../image-watermark.php:522
+#: ../image-watermark.php:615 ../image-watermark.php:619
 msgid "Watermark image"
 msgstr "Obrazek znaku wodnego"
 
-#: ../image-watermark.php:519
+#: ../image-watermark.php:616
 msgid ""
-"Configure your watermark image. Allowed file formats are: jpg, png, gif."
+"Configure your watermark image. Allowed file formats are: JPEG, PNG, GIF."
 msgstr ""
-"Skonfiguruj obrazek znaku wodnego. Dozwolone formaty plików to: jpg, png i "
-"gif."
+"Skonfiguruj obrazek znaku wodnego. Dozwolone formaty plików to: JPEG, PNG, "
+"GIF."
 
-#: ../image-watermark.php:525
+#: ../image-watermark.php:622
 msgid "Select image"
 msgstr "Wybierz obrazek"
 
-#: ../image-watermark.php:526
+#: ../image-watermark.php:623
 msgid "Turn off image"
 msgstr "Wyłącz obrazek"
 
-#: ../image-watermark.php:527
+#: ../image-watermark.php:624
 msgid "You have to save changes after the selection or removal of the image."
 msgstr "Po zapisaniu zmian lub wybraniu obrazka powienieneś zapisać zmiany."
 
-#: ../image-watermark.php:531
+#: ../image-watermark.php:628
 msgid "Watermark preview"
 msgstr "Podgląd obrazka"
 
-#: ../image-watermark.php:534
+#: ../image-watermark.php:631
 msgid "Watermark Preview"
 msgstr "Podgląd obrazka"
 
-#: ../image-watermark.php:562
+#: ../image-watermark.php:659
 msgid "Watermark size"
 msgstr "Wielkość znaku wodnego"
 
-#: ../image-watermark.php:567
+#: ../image-watermark.php:664
 msgid "original"
 msgstr "oryginalna"
 
-#: ../image-watermark.php:569
+#: ../image-watermark.php:666
 msgid "custom"
 msgstr "własna"
 
-#: ../image-watermark.php:571
+#: ../image-watermark.php:668
 msgid "scaled"
 msgstr "skalowana"
 
-#: ../image-watermark.php:574
+#: ../image-watermark.php:671
 msgid "Select method of aplying watermark size."
 msgstr "Wybierz sposób określania wielkości znaku wodnego."
 
-#: ../image-watermark.php:579
+#: ../image-watermark.php:676
 msgid "Watermark custom size"
 msgstr "Własna wielkość"
 
-#: ../image-watermark.php:587
+#: ../image-watermark.php:684
 msgid "Those dimensions will be used if \"custom\" method is selected above."
 msgstr ""
 "Te wymiary zostaną zastosowane, jeśli wybrałeś \"własną\" wielkość znaku "
 "wodnego. "
 
-#: ../image-watermark.php:591
+#: ../image-watermark.php:688
 msgid "Scale of watermark in relation to image width"
 msgstr "Wielkość znaku wodnego w stosunku do szerokości obrazków"
 
-#: ../image-watermark.php:597
+#: ../image-watermark.php:694
 msgid ""
 "This value will be used if \"scaled\" method if selected above. <br />Enter "
 "a number ranging from 0 to 100. 100 makes width of watermark image equal to "
@@ -225,11 +249,11 @@ msgstr ""
 "że wielkość znaku wodnego będzie równa wielkości obrazka, do którego jest "
 "dodawany."
 
-#: ../image-watermark.php:601
+#: ../image-watermark.php:698
 msgid "Watermark transparency / opacity"
 msgstr "Przezroczystość znaku wodnego"
 
-#: ../image-watermark.php:606
+#: ../image-watermark.php:703
 msgid ""
 "Enter a number ranging from 0 to 100. 0 makes watermark image completely "
 "transparent, 100 shows it as is."
@@ -237,68 +261,72 @@ msgstr ""
 "Wpisz liczbę z zakresu od 0 do 100. Wpisanie 0 spowoduje, że znak wodny "
 "będzie całkowicie przezroczysty, 100 że widoczny taki jak jest."
 
-#: ../image-watermark.php:612
+#: ../image-watermark.php:709
 msgid "Image protection"
 msgstr "Ochrona obrazków"
 
-#: ../image-watermark.php:615
+#: ../image-watermark.php:712
 msgid "Disable right mouse click on images"
 msgstr "Wyłącz możliwość kliknięcia prawym przyciskiem myszy na obrazku"
 
-#: ../image-watermark.php:619
+#: ../image-watermark.php:716
 msgid "Prevent drag and drop"
 msgstr "Wyłącz możliwość przeciągania i upuszczania obrazków"
 
-#: ../image-watermark.php:623
+#: ../image-watermark.php:720
 msgid "Enable image protection for logged-in users also"
 msgstr "Włącz ochronę zdjęć także dla zalogowanych użytkowników"
 
-#: ../image-watermark.php:628
+#: ../image-watermark.php:725
 msgid "Save Changes"
 msgstr "Zapisz zmiany"
 
-#: ../image-watermark.php:634
+#: ../image-watermark.php:731
 msgid "Image Watermark"
 msgstr "Znak wodny"
 
-#: ../image-watermark.php:636
+#: ../image-watermark.php:733
 msgid "Need support?"
 msgstr "Potrzebujesz pomocy?"
 
-#: ../image-watermark.php:637
+#: ../image-watermark.php:734
 msgid ""
 "If you are having problems with this plugin, please talk about them in the"
 msgstr "Jeśli masz jakiekolwiek problemy z tą wtyczką, powiedz o tym na"
 
-#: ../image-watermark.php:637
+#: ../image-watermark.php:734
 msgid "Support forum"
 msgstr "Forum pomocy"
 
-#: ../image-watermark.php:639
+#: ../image-watermark.php:736
 msgid "Do you like this plugin?"
 msgstr "Lubisz tę wtyczkę?"
 
-#: ../image-watermark.php:640
-msgid "Rate it 5 on WordPress.org"
-msgstr "Oceń ją na 5 na WordPress.org"
+#: ../image-watermark.php:737
+msgid "Rate it 5"
+msgstr "Oceń ją na 5"
 
-#: ../image-watermark.php:641
+#: ../image-watermark.php:737
+msgid "on WordPress.org"
+msgstr "na WordPress.org"
+
+#: ../image-watermark.php:738
 msgid "Blog about it & link to the"
 msgstr "Napisz o niej i dodaj link do"
 
-#: ../image-watermark.php:641
+#: ../image-watermark.php:738
 msgid "plugin page"
 msgstr "strony wtyczki"
 
-#: ../image-watermark.php:642
+#: ../image-watermark.php:739
 msgid "Check out our other"
 msgstr "Sprawdź inne"
 
-#: ../image-watermark.php:642
+#: ../image-watermark.php:739
 msgid "WordPress plugins"
 msgstr "wtyczki do WordPressa"
 
-#: ../image-watermark.php:646
+#: ../image-watermark.php:743
 msgid "Created by"
 msgstr "Stworzone przez"
 

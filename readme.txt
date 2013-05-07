@@ -1,10 +1,10 @@
 === Image Watermark ===
 Contributors: dfactory
 Donate link: http://www.dfactory.eu/
-Tags: image, images, picture, watermark, watermarking, protection, image protection, image security
+Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -12,12 +12,14 @@ Image Watermark allows you to automatically watermark images uploaded to the Wor
 
 == Description ==
 
-[Image Watermark](http://www.dfactory.eu/plugins/image-watermark/) allows you to automatically watermark images uploaded to the WordPress Media Library.
+[Image Watermark](http://www.dfactory.eu/plugins/image-watermark/) allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously imported images.
 
 For more information, check out plugin page at [dFactory](http://www.dfactory.eu/) or plugin [support forum](http://www.dfactory.eu/support/forum/image-watermark/).
 
 = Features include: =
 
+* Bulk watermark - Apply watermark in Media Library actions
+* Watermark images already uploaded to Media Library
 * Choose the position of watermark image
 * Upload custom watermark image
 * Watermark image preview
@@ -33,9 +35,10 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 
 == Installation ==
 
-1. Install Image Watermark either via the WordPress.org plugin directory, or by uploading the files to your server</li>
-1. Activate the plugin through the 'Plugins' menu in WordPress</li>
-1. Go to the Watermark menu in Settings and set your watermarking options.</li>
+1. Install Image Watermark either via the WordPress.org plugin directory, or by uploading the files to your server
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Go to the Watermark menu in Settings and set your watermarking options.
+1. Enable watermark to apply watermark to uploaded images or go to Media Library to apply watermark to previously uploaded images
 
 == Frequently Asked Questions ==
 
@@ -47,6 +50,10 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.1.0 =
+* New: Bulk watermark - Apply watermark in Media Library actions
+* New: Watermark images already uploaded to Media Library
 
 = 1.0.3 =
 * Fix: Error during upload of file types other than images (png, jpg)
@@ -72,4 +79,4 @@ Initial release
 
 == Upgrade Notice ==
 
-Fix: Error during upload of file types other than images (png, jpg)
+New: Watermark images already uploaded to Media Library
