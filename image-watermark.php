@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library.
-Version: 1.1.0
+Version: 1.1.1
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -46,7 +46,8 @@ class ImageWatermark
 		'df_watermark_image' => array(
 			'url' => 0,
 			'width' => 80,
-			'plugin_off' => 1,
+			'plugin_off' => 0,
+			'manual_watermarking' => 0,
 			'position' => 'bottom_right',
 			'watermark_size_type' => 2,
 			'offset_width' => 0,
@@ -96,8 +97,11 @@ class ImageWatermark
 			$opt = get_option('df_watermark_image');
 			$wp_list_table = _get_list_table('WP_Media_List_Table');
 
-			//only if image watermark is turned on
-			if($wp_list_table->current_action() === 'applywatermark' && $opt['plugin_off'] === 0 && $opt['url'] !== 0)
+			//update-fix from 1.1.0 to later versions
+			$opt['manual_watermarking'] = (isset($opt['manual_watermarking']) ? $opt['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
+
+			//only if manual watermarking is turned on and image watermark is set
+			if($wp_list_table->current_action() === 'applywatermark' && $opt['manual_watermarking'] === 1 && $opt['url'] !== 0)
 			{
 				//security check
 				check_admin_referer('bulk-media');
@@ -109,11 +113,10 @@ class ImageWatermark
 
 					foreach($_REQUEST['media'] as $media_id)
 					{
-						$upload_dir = wp_upload_dir();
 						$data = wp_get_attachment_metadata($media_id, FALSE);
 
 						//is this really an image?
-						if(in_array(get_post_mime_type($media_id), $this->_allowed_mime_types) && is_array($data) && getimagesize($upload_dir['basedir'].DIRECTORY_SEPARATOR.$data['file']) !== FALSE)
+						if(in_array(get_post_mime_type($media_id), $this->_allowed_mime_types) && is_array($data))
 						{
 							$this->apply_watermark($data);
 							$watermarked++;
@@ -138,10 +141,11 @@ class ImageWatermark
 
 		if($pagenow === 'upload.php' && $post_type === 'attachment' && isset($_REQUEST['watermarked']))
 		{
-			if ($_REQUEST['watermarked'] == 0)
+			if($_REQUEST['watermarked'] === 0)
 			{
 				echo '<div class="error"><p>'.__('Watermark couldn\'t be applied to selected images or no images were selected.', 'image-watermark').'</p></div>';
-			} elseif ($_REQUEST['watermarked'] > 0)
+			}
+			elseif($_REQUEST['watermarked'] > 0)
 			{
 				echo '<div class="updated"><p>'.sprintf(_n('Watermark was succesfully applied to 1 image.', 'Watermark was succesfully applied to %s images.', (int)$_REQUEST['watermarked'], 'image-watermark'), number_format_i18n((int)$_REQUEST['watermarked'])).'</p></div>';
 			}
@@ -168,14 +172,13 @@ class ImageWatermark
 	{
 		$option_wi = get_option('df_watermark_image');
 
-		//if plugin is activated and turned on and watermark image is set and uploaded file is an image
+		//if plugin is activated and turned on and watermark image is set
 		if($option_wi['plugin_off'] === 0 && $option_wi['url'] !== 0 && isset($_REQUEST['post_id']) && in_array($file['type'], $this->_allowed_mime_types))
 		{
 			$option = get_option('df_watermark_cpt_on');
-			$upload_dir = wp_upload_dir();
 
 			//when apply watermark? everywhere or specific custom post types
-			if(((isset($option[0], $_REQUEST['name']) && $option[0] === 'everywhere') || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE) && getimagesize($upload_dir['path'].DIRECTORY_SEPARATOR.$_REQUEST['name']) !== FALSE)
+			if(((isset($option[0], $_REQUEST['name']) && $option[0] === 'everywhere') || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE))
 			{
 				add_filter('wp_generate_attachment_metadata', array(&$this, 'apply_watermark'));
 			}
@@ -247,7 +250,10 @@ class ImageWatermark
 		{
 			$opt = get_option('df_watermark_image');
 
-			if($opt['plugin_off'] === 0 && $opt['url'] !== 0)
+			//update-fix from 1.1.0 to later versions
+			$opt['manual_watermarking'] = (isset($opt['manual_watermarking']) ? $opt['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
+
+			if($opt['manual_watermarking'] === 1)
 			{
 				wp_enqueue_script(
 					'apply-watermark',
@@ -291,6 +297,7 @@ class ImageWatermark
 					'title'			=> __('Select watermark', 'image-watermark'),
 					'originalSize'	=> __('Original size', 'image-watermark'),
 					'noSelectedImg'	=> __('Watermak has not been selected yet.', 'image-watermark'),
+					'notAllowedImg'	=> __('This image is not supported as watermark. Use JPEG, PNG or GIF.', 'image-watermark'),
 					'frame'			=> 'select',
 					'button'		=> array('text' => __('Add watermark', 'image-watermark')),
 					'multiple'		=> FALSE,
@@ -298,7 +305,7 @@ class ImageWatermark
 			);
 
 			wp_enqueue_style('thickbox');
-			wp_enqueue_style('watermark-style', plugins_url('css/style.css', __FILE__));
+			wp_enqueue_style('watermark-style', plugins_url('css/image-watermark.css', __FILE__));
 			wp_enqueue_style('wp-like-ui-theme', plugins_url('css/wp-like-ui-theme.css', __FILE__));
 		}
 	}
@@ -437,6 +444,7 @@ class ImageWatermark
 										break;
 
 									case 'plugin_off':
+									case 'manual_watermarking':
 									case 'offset_width':
 									case 'offset_height':
 									case 'absolute_width':
@@ -499,7 +507,10 @@ class ImageWatermark
 		$watermark_image = get_option('df_watermark_image');
 		$image_protection = get_option('df_image_protection');
 
-		if($watermark_image['plugin_off'] === 0 && $watermark_image['url'] === 0)
+		//update-fix from 1.1.0 to later versions
+		$watermark_image['manual_watermarking'] = (isset($watermark_image['manual_watermarking']) ? $watermark_image['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
+
+		if(($watermark_image['plugin_off'] === 0 || $watermark_image['manual_watermarking'] === 1) && $watermark_image['url'] === 0)
 		{
 			echo '
 			<div class="error">
@@ -516,10 +527,9 @@ class ImageWatermark
                 	<h3><?php echo __('General settings', 'image-watermark'); ?></h3>
                     <table id="watermark-general-table" class="form-table">
                         <tr valign="top">
-                            <th scope="row"><?php echo __('Enable watermark', 'image-watermark'); ?></th>
+                            <th scope="row"><?php echo __('Automatic watermarking', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                    <legend class="screen-reader-text"><span><?php echo __('Width', 'image-watermark'); ?></span></legend>
                                     <div id="run-watermark">
                                         <label for="plugin_on"><?php echo __('on', 'image-watermark'); ?></label>
                                         <input type="radio" id="plugin_on" value="0" name="df_watermark_image[plugin_off]" <?php checked($watermark_image['plugin_off'], 0, TRUE); ?> />
@@ -531,12 +541,27 @@ class ImageWatermark
                             </td>
                         </tr>
                     </table>
+					<table id="watermark-manual-table" class="form-table">
+                        <tr valign="top">
+                            <th scope="row"><?php echo __('Manual watermarking', 'image-watermark'); ?></th>
+                            <td class="wr_width">
+                                <fieldset class="wr_width">
+                                    <div id="run-manual-watermark">
+                                        <label for="manual_watermarking_on"><?php echo __('on', 'image-watermark'); ?></label>
+                                        <input type="radio" id="manual_watermarking_on" value="1" name="df_watermark_image[manual_watermarking]" <?php checked($watermark_image['manual_watermarking'], 1, TRUE); ?> />
+                                        <label for="manual_watermarking_off"><?php echo __('off', 'image-watermark'); ?></label>
+                                        <input type="radio" id="manual_watermarking_off" value="0" name="df_watermark_image[manual_watermarking]" <?php checked($watermark_image['manual_watermarking'], 0, TRUE); ?> />
+                                    </div>
+                                    <p class="howto"><?php echo __('Enable or disable Apply Watermark option for images in Media Library.', 'image-watermark'); ?></p>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </table>
                     <table id="watermark-for-table" class="form-table">
                         <tr valign="top">
                             <th scope="row"><?php echo __('Enable watermark for', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                	<legend class="screen-reader-text"><span><?php echo __('Enable watermark for', 'image-watermark'); ?></span></legend>
                                     <?php $watermark_on = array_keys(get_option('df_watermark_on')); ?>
                                     <div id="thumbnail-select">
 										<?php foreach($this->_image_sizes as $image_size) : ?>
@@ -545,7 +570,6 @@ class ImageWatermark
                                         <?php endforeach; ?>
                                     </div>
                                     <p class="howto"><?php echo __('Check image sizes on which watermark should appear.', 'image-watermark'); ?></p>
-									<legend class="screen-reader-text"><span><?php echo __('Enable watermark for', 'image-watermark'); ?></span></legend>
                                     <?php $watermark_cpt_on = array_keys(get_option('df_watermark_cpt_on'));
 									if(in_array('everywhere', $watermark_cpt_on) && count($watermark_cpt_on) === 1)
 									{ $first_checked = TRUE; $second_checked = FALSE; $watermark_cpt_on = array(); }
@@ -572,7 +596,6 @@ class ImageWatermark
                             <th scope="row"><?php echo __('Watermark alignment','image-watermark'); ?></th>
                             <td>
                                 <fieldset>
-                                <legend class="screen-reader-text"><span><?php __('Watermark alignment','image-watermark'); ?></span></legend>
                                     <table id="watermark_position" border="1">
                                         <?php $watermark_position = $watermark_image['position']; ?>
                                         <?php foreach($this->_watermark_positions['y'] as $y) : ?>
@@ -593,7 +616,6 @@ class ImageWatermark
                             <th scope="row"><?php echo __('Watermark offset','image-watermark'); ?></th>
                             <td>
                                 <fieldset>
-                                    <legend class="screen-reader-text"><span><?php echo __('Watermark offset','image-watermark'); ?></span></legend>
                                     <?php echo __('x:','image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[offset_width]" value="<?php echo $watermark_image['offset_width']; ?>"> <?php echo __('px','image-watermark'); ?>
                                     <br />
                                     <?php echo __('y:','image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[offset_height]" value="<?php echo $watermark_image['offset_height']; ?>"> <?php echo __('px','image-watermark'); ?>
@@ -628,7 +650,6 @@ class ImageWatermark
                             <th scope="row"><?php echo __('Watermark preview', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                    <legend class="screen-reader-text"><span><?php echo __('Watermark Preview', 'image-watermark'); ?></span></legend>
                                     <div id="previewImg_imageDiv">
                                         <?php if($imageSelected === TRUE) {
 										$image = wp_get_attachment_image_src($watermark_image['url'], array(300, 300), FALSE);
@@ -659,7 +680,6 @@ class ImageWatermark
                             <th scope="row"><?php echo __('Watermark size', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                <legend class="screen-reader-text"><span><?php echo __('Width', 'image-watermark'); ?></span></legend>
                                     <div id="watermark-type">
                                     <label for="type1"><?php echo __('original', 'image-watermark'); ?></label>
                                     <input type="radio" id="type1" value="0" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 0, TRUE); ?> />
@@ -676,7 +696,6 @@ class ImageWatermark
                             <th scope="row"><?php echo __('Watermark custom size', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                <legend class="screen-reader-text"><span><?php echo __('Width', 'image-watermark'); ?></span></legend>
                                     <?php echo __('x:', 'image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[absolute_width]" value="<?php echo $watermark_image['absolute_width']; ?>"> <?php echo __('px', 'image-watermark'); ?>
                                     <br />
                                     <?php echo __('y:', 'image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[absolute_height]" value="<?php echo $watermark_image['absolute_height']; ?>"> <?php echo __('px','image-watermark'); ?>
@@ -688,7 +707,6 @@ class ImageWatermark
                             <th scope="row"><?php echo __('Scale of watermark in relation to image width', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                <legend class="screen-reader-text"><span><?php echo __('Width', 'image-watermark'); ?></span></legend>
                                     <input type="text" size="5"  name="df_watermark_image[width]" value="<?php echo $watermark_image['width']; ?>">%
                                 </fieldset>
                                 <p class="howto"><?php echo __('This value will be used if "scaled" method if selected above. <br />Enter a number ranging from 0 to 100. 100 makes width of watermark image equal to width of the image it is applied to.','image-watermark'); ?></p>
@@ -774,35 +792,40 @@ class ImageWatermark
 	 */
 	public function apply_watermark($data)
 	{
-		//get settings for watermarking
 		$upload_dir = wp_upload_dir();
-		$watermark_on = get_option('df_watermark_on');
 
-		//loop through active image sizes
-		foreach($watermark_on as $image_size => $active_size)
+		//is this really an iamge?
+		if(getimagesize($upload_dir['basedir'].DIRECTORY_SEPARATOR.$data['file']) !== FALSE)
 		{
-			if($active_size === 1)
+			//get settings for watermarking
+			$watermark_on = get_option('df_watermark_on');
+
+			//loop through active image sizes
+			foreach($watermark_on as $image_size => $active_size)
 			{
-				switch($image_size)
+				if($active_size === 1)
 				{
-					case 'full':
-						$filepath = $upload_dir['basedir'].DIRECTORY_SEPARATOR.$data['file'];
-						break;
+					switch($image_size)
+					{
+						case 'full':
+							$filepath = $upload_dir['basedir'].DIRECTORY_SEPARATOR.$data['file'];
+							break;
 
-					default:
-						if(!empty($data['sizes']) && array_key_exists($image_size, $data['sizes']))
-						{
-							$filepath = $upload_dir['basedir'].DIRECTORY_SEPARATOR.dirname($data['file']).DIRECTORY_SEPARATOR.$data['sizes'][$image_size]['file'];
-						}
-						else
-						{
-							//early getaway
-							continue 2;
-						}
+						default:
+							if(!empty($data['sizes']) && array_key_exists($image_size, $data['sizes']))
+							{
+								$filepath = $upload_dir['basedir'].DIRECTORY_SEPARATOR.dirname($data['file']).DIRECTORY_SEPARATOR.$data['sizes'][$image_size]['file'];
+							}
+							else
+							{
+								//early getaway
+								continue 2;
+							}
+					}
+
+					//apply watermark
+					$this->do_watermark($filepath);
 				}
-
-				//apply watermark
-				$this->do_watermark($filepath);
 			}
 		}
 

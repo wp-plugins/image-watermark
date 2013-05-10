@@ -9,10 +9,10 @@
 		);
 
 		// Button
-		$("#divButton, #linkButton, #submitButton, #inputButton").button();
+		$('#divButton, #linkButton, #submitButton, #inputButton').button();
 
 		// Button Set
-		$("#run-watermark, #thumbnail-select, #watermark-type, #cpt-select, #cpt-specific").buttonset();
+		$('#run-watermark, #thumbnail-select, #watermark-type, #cpt-select, #cpt-specific, #run-manual-watermark').buttonset();
 
 		$('#df_option_everywhere, #df_option_cpt').change(function()
 		{

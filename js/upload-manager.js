@@ -10,7 +10,7 @@ jQuery(document).ready(function($) {
 				button: upload_manager_args.button,
 				multiple: upload_manager_args.multiple,
 				library: {
-					type: ['image/gif', 'image/jpg', 'image/jpeg', 'image/png']
+					type: 'image'
 				}
 			});
 
@@ -19,26 +19,37 @@ jQuery(document).ready(function($) {
 		},
 		select: function() {
 			var attachment = this.frame.state().get('selection').first();
-			$('#upload_image').val(attachment.attributes.id);
 
-			if($('div#previewImg_imageDiv img#previewImg_image').attr('src') !== '')
+			if(jQuery.inArray(attachment.attributes.mime, ['image/gif', 'image/jpg', 'image/jpeg', 'image/png']) !== -1)
 			{
-				$('div#previewImg_imageDiv img#previewImg_image').replaceWith('<img id="previewImg_image" src="'+attachment.attributes.url+'" alt="" width="300" />');
+				$('#upload_image').val(attachment.attributes.id);
+
+				if($('div#previewImg_imageDiv img#previewImg_image').attr('src') !== '')
+				{
+					$('div#previewImg_imageDiv img#previewImg_image').replaceWith('<img id="previewImg_image" src="'+attachment.attributes.url+'" alt="" width="300" />');
+				}
+				else 
+				{
+					$('div#previewImg_imageDiv img#previewImg_image').attr('src', attachment.attributes.url);
+				}
+
+				$('#turn_off_image_button').removeAttr('disabled');
+				$('div#previewImg_imageDiv img#previewImg_image').show();
+
+				var img = new Image();
+				img.src = attachment.attributes.url;
+
+				img.onload = function()
+				{
+					$('p#previewImageInfo').html(upload_manager_args.originalSize+': '+this.width+' px / '+this.height+' px');
+				}
 			}
-			else 
+			else
 			{
-				$('div#previewImg_imageDiv img#previewImg_image').attr('src', attachment.attributes.url);
-			}
-
-			$('#turn_off_image_button').removeAttr('disabled');
-			$('div#previewImg_imageDiv img#previewImg_image').show();
-
-			var img = new Image();
-			img.src = attachment.attributes.url;
-
-			img.onload = function()
-			{
-				$('p#previewImageInfo').html(upload_manager_args.originalSize+': <strong>'+this.width+'</strong>px / <strong>'+this.height+'</strong>px');
+				$('#turn_off_image_button').attr('disabled', 'true');
+				$('#upload_image').val(0);
+				$('div#previewImg_imageDiv img#previewImg_image').attr('src', '').hide();
+				$('p#previewImageInfo').html('<strong>'+upload_manager_args.notAllowedImg+'</strong>');
 			}
 		},
 		init: function() {
