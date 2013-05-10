@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -12,13 +12,13 @@ Image Watermark allows you to automatically watermark images uploaded to the Wor
 
 == Description ==
 
-[Image Watermark](http://www.dfactory.eu/plugins/image-watermark/) allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously imported images.
+[Image Watermark](http://www.dfactory.eu/plugins/image-watermark/) allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
 
 For more information, check out plugin page at [dFactory](http://www.dfactory.eu/) or plugin [support forum](http://www.dfactory.eu/support/forum/image-watermark/).
 
 = Features include: =
 
-* Bulk watermark - Apply watermark in Media Library actions
+* Bulk watermark - Apply watermark option in Media Library actions
 * Watermark images already uploaded to Media Library
 * Choose the position of watermark image
 * Upload custom watermark image
@@ -51,6 +51,11 @@ No questions yet.
 
 == Changelog ==
 
+= 1.1.1 =
+* New: Added option to enable or disable manual watermarking in Media Library
+* Fix: Apply watermark option not visible in Media Library actions
+* Fix: Warning on full size images
+
 = 1.1.0 =
 * New: Bulk watermark - Apply watermark in Media Library actions
 * New: Watermark images already uploaded to Media Library
@@ -79,4 +84,4 @@ Initial release
 
 == Upgrade Notice ==
 
-New: Watermark images already uploaded to Media Library
+New: Added option to enable or disable manual watermarking in Media Library
