@@ -27,6 +27,8 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Select post types where watermark will be aplied to images or select adding watermark during any image upload
 * Select from 3 methods of aplying watermark size: original, custom or scaled
 * Set watermark transparency / opacity
+* Select image format (baseline or progressive)
+* Set image quality
 * Protect your images from copying via drag&drop
 * Disable right mouse click on images
 * Disable image protection for logged-in users
@@ -50,6 +52,12 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.1.2 =
+* New: Image quality option
+* New: Image format selection (progressive or baseline)
+* Fix: Error when getimagesize() is not available on some servers
+* Tweak: Files & class naming conventions
 
 = 1.1.1 =
 * New: Added option to enable or disable manual watermarking in Media Library
@@ -84,4 +92,6 @@ Initial release
 
 == Upgrade Notice ==
 
-New: Added option to enable or disable manual watermarking in Media Library
+= 1.1.2 =
+
+Bugfix release. Added image quality & image format options.

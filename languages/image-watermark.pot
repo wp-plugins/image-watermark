@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WordPress Watermark\n"
-"POT-Creation-Date: 2013-05-10 11:52+0100\n"
-"PO-Revision-Date: 2013-05-10 11:52+0100\n"
+"POT-Creation-Date: 2013-06-10 16:48+0100\n"
+"PO-Revision-Date: 2013-06-10 16:48+0100\n"
 "Last-Translator: Bartosz Arendt <info@digitalfactory.pl>\n"
 "Language-Team: dFactory <info@dfactory.pl>\n"
 "Language: English\n"
@@ -22,47 +22,47 @@ msgid ""
 "Sorry, Image Watermark plugin requires at least PHP 5.0 and WP 3.5 or higher."
 msgstr ""
 
-#: ../image-watermark.php:146
+#: ../image-watermark.php:149
 msgid ""
 "Watermark couldn't be applied to selected images or no images were selected."
 msgstr ""
 
-#: ../image-watermark.php:150
+#: ../image-watermark.php:153
 #, php-format
 msgid "Watermark was succesfully applied to 1 image."
 msgid_plural "Watermark was succesfully applied to %s images."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../image-watermark.php:214
+#: ../image-watermark.php:217
 msgid "Support"
 msgstr ""
 
-#: ../image-watermark.php:236
+#: ../image-watermark.php:239
 msgid "Settings"
 msgstr ""
 
-#: ../image-watermark.php:267
+#: ../image-watermark.php:270
 msgid "Apply watermark"
 msgstr ""
 
-#: ../image-watermark.php:297
+#: ../image-watermark.php:294
 msgid "Select watermark"
 msgstr ""
 
-#: ../image-watermark.php:298 ../image-watermark.php:672
+#: ../image-watermark.php:295 ../image-watermark.php:686
 msgid "Original size"
 msgstr ""
 
-#: ../image-watermark.php:299 ../image-watermark.php:666
+#: ../image-watermark.php:296 ../image-watermark.php:680
 msgid "Watermak has not been selected yet."
 msgstr ""
 
-#: ../image-watermark.php:300
+#: ../image-watermark.php:297
 msgid "This image is not supported as watermark. Use JPEG, PNG or GIF."
 msgstr ""
 
-#: ../image-watermark.php:302
+#: ../image-watermark.php:299
 msgid "Add watermark"
 msgstr ""
 
@@ -78,236 +78,266 @@ msgstr ""
 msgid "Image Watermark will not work properly without GD PHP extension."
 msgstr ""
 
-#: ../image-watermark.php:503
+#: ../image-watermark.php:508
 msgid "Settings saved."
 msgstr ""
 
-#: ../image-watermark.php:517
-msgid "Watermarks will not be applied when <b>watermark image is not set</b>."
-msgstr ""
-
-#: ../image-watermark.php:523
-msgid "Image Watermark Settings"
-msgstr ""
-
-#: ../image-watermark.php:527
-msgid "General settings"
+#: ../image-watermark.php:525
+msgid "Watermark will not be applied when <b>watermark image is not set</b>."
 msgstr ""
 
 #: ../image-watermark.php:530
+msgid "Watermark will not be applied when <b>no image sizes are selected</b>."
+msgstr ""
+
+#: ../image-watermark.php:538
+msgid "Image Watermark Settings"
+msgstr ""
+
+#: ../image-watermark.php:542
+msgid "General settings"
+msgstr ""
+
+#: ../image-watermark.php:545
 msgid "Automatic watermarking"
 msgstr ""
 
-#: ../image-watermark.php:534 ../image-watermark.php:550
+#: ../image-watermark.php:549 ../image-watermark.php:565
 msgid "on"
 msgstr ""
 
-#: ../image-watermark.php:536 ../image-watermark.php:552
+#: ../image-watermark.php:551 ../image-watermark.php:567
 msgid "off"
 msgstr ""
 
-#: ../image-watermark.php:539
+#: ../image-watermark.php:554
 msgid "Enable or disable watermark for uploaded images."
 msgstr ""
 
-#: ../image-watermark.php:546
+#: ../image-watermark.php:561
 msgid "Manual watermarking"
 msgstr ""
 
-#: ../image-watermark.php:555
+#: ../image-watermark.php:570
 msgid "Enable or disable Apply Watermark option for images in Media Library."
 msgstr ""
 
-#: ../image-watermark.php:562
+#: ../image-watermark.php:577
 msgid "Enable watermark for"
 msgstr ""
 
-#: ../image-watermark.php:572
-msgid "Check image sizes on which watermark should appear."
+#: ../image-watermark.php:586
+msgid ""
+"Check image sizes on which watermark should appear. <b>Notice:</b> checking "
+"full size is not recommened as it's the original image."
 msgstr ""
 
-#: ../image-watermark.php:578
+#: ../image-watermark.php:592
 msgid "everywhere"
 msgstr ""
 
-#: ../image-watermark.php:579
+#: ../image-watermark.php:593
 msgid "on selected post types only"
 msgstr ""
 
-#: ../image-watermark.php:587
+#: ../image-watermark.php:601
 msgid ""
 "Check custom post types on which watermark should be applied to uploaded "
 "images."
 msgstr ""
 
-#: ../image-watermark.php:593
+#: ../image-watermark.php:607
 msgid "Watermark position"
 msgstr ""
 
-#: ../image-watermark.php:596
+#: ../image-watermark.php:610
 msgid "Watermark alignment"
 msgstr ""
 
-#: ../image-watermark.php:611
+#: ../image-watermark.php:625
 msgid "Choose the position of watermark image."
 msgstr ""
 
-#: ../image-watermark.php:616
+#: ../image-watermark.php:630
 msgid "Watermark offset"
 msgstr ""
 
-#: ../image-watermark.php:619 ../image-watermark.php:699
+#: ../image-watermark.php:633 ../image-watermark.php:713
 msgid "x:"
 msgstr ""
 
-#: ../image-watermark.php:619 ../image-watermark.php:621
-#: ../image-watermark.php:699 ../image-watermark.php:701
+#: ../image-watermark.php:633 ../image-watermark.php:635
+#: ../image-watermark.php:713 ../image-watermark.php:715
 msgid "px"
 msgstr ""
 
-#: ../image-watermark.php:621 ../image-watermark.php:701
+#: ../image-watermark.php:635 ../image-watermark.php:715
 msgid "y:"
 msgstr ""
 
-#: ../image-watermark.php:637 ../image-watermark.php:641
+#: ../image-watermark.php:651 ../image-watermark.php:655
 msgid "Watermark image"
 msgstr ""
 
-#: ../image-watermark.php:638
+#: ../image-watermark.php:652
 msgid ""
 "Configure your watermark image. Allowed file formats are: JPEG, PNG, GIF."
 msgstr ""
 
-#: ../image-watermark.php:644
+#: ../image-watermark.php:658
 msgid "Select image"
 msgstr ""
 
-#: ../image-watermark.php:645
+#: ../image-watermark.php:659
 msgid "Turn off image"
 msgstr ""
 
-#: ../image-watermark.php:646
+#: ../image-watermark.php:660
 msgid "You have to save changes after the selection or removal of the image."
 msgstr ""
 
-#: ../image-watermark.php:650
+#: ../image-watermark.php:664
 msgid "Watermark preview"
 msgstr ""
 
-#: ../image-watermark.php:680
+#: ../image-watermark.php:694
 msgid "Watermark size"
 msgstr ""
 
-#: ../image-watermark.php:684
+#: ../image-watermark.php:698
 msgid "original"
 msgstr ""
 
-#: ../image-watermark.php:686
+#: ../image-watermark.php:700
 msgid "custom"
 msgstr ""
 
-#: ../image-watermark.php:688
+#: ../image-watermark.php:702
 msgid "scaled"
 msgstr ""
 
-#: ../image-watermark.php:691
+#: ../image-watermark.php:705
 msgid "Select method of aplying watermark size."
 msgstr ""
 
-#: ../image-watermark.php:696
+#: ../image-watermark.php:710
 msgid "Watermark custom size"
 msgstr ""
 
-#: ../image-watermark.php:703
+#: ../image-watermark.php:717
 msgid "Those dimensions will be used if \"custom\" method is selected above."
 msgstr ""
 
-#: ../image-watermark.php:707
+#: ../image-watermark.php:721
 msgid "Scale of watermark in relation to image width"
 msgstr ""
 
-#: ../image-watermark.php:712
+#: ../image-watermark.php:726
 msgid ""
 "This value will be used if \"scaled\" method if selected above. <br />Enter "
 "a number ranging from 0 to 100. 100 makes width of watermark image equal to "
 "width of the image it is applied to."
 msgstr ""
 
-#: ../image-watermark.php:716
+#: ../image-watermark.php:730
 msgid "Watermark transparency / opacity"
 msgstr ""
 
-#: ../image-watermark.php:721
+#: ../image-watermark.php:735
 msgid ""
 "Enter a number ranging from 0 to 100. 0 makes watermark image completely "
 "transparent, 100 shows it as is."
 msgstr ""
 
-#: ../image-watermark.php:727
-msgid "Image protection"
+#: ../image-watermark.php:739
+msgid "Image quality"
 msgstr ""
 
-#: ../image-watermark.php:730
-msgid "Disable right mouse click on images"
+#: ../image-watermark.php:744
+msgid "Set watermark image quality."
 msgstr ""
 
-#: ../image-watermark.php:734
-msgid "Prevent drag and drop"
-msgstr ""
-
-#: ../image-watermark.php:738
-msgid "Enable image protection for logged-in users also"
-msgstr ""
-
-#: ../image-watermark.php:743
-msgid "Save Changes"
-msgstr ""
-
-#: ../image-watermark.php:749
-msgid "Image Watermark"
-msgstr ""
-
-#: ../image-watermark.php:751
-msgid "Need support?"
+#: ../image-watermark.php:748
+msgid "Image format"
 msgstr ""
 
 #: ../image-watermark.php:752
+msgid "baseline"
+msgstr ""
+
+#: ../image-watermark.php:754
+msgid "progressive"
+msgstr ""
+
+#: ../image-watermark.php:758
+msgid "Select baseline or progressive image format."
+msgstr ""
+
+#: ../image-watermark.php:764
+msgid "Image protection"
+msgstr ""
+
+#: ../image-watermark.php:767
+msgid "Disable right mouse click on images"
+msgstr ""
+
+#: ../image-watermark.php:771
+msgid "Prevent drag and drop"
+msgstr ""
+
+#: ../image-watermark.php:775
+msgid "Enable image protection for logged-in users also"
+msgstr ""
+
+#: ../image-watermark.php:780
+msgid "Save Changes"
+msgstr ""
+
+#: ../image-watermark.php:786
+msgid "Image Watermark"
+msgstr ""
+
+#: ../image-watermark.php:788
+msgid "Need support?"
+msgstr ""
+
+#: ../image-watermark.php:789
 msgid ""
 "If you are having problems with this plugin, please talk about them in the"
 msgstr ""
 
-#: ../image-watermark.php:752
+#: ../image-watermark.php:789
 msgid "Support forum"
 msgstr ""
 
-#: ../image-watermark.php:754
+#: ../image-watermark.php:791
 msgid "Do you like this plugin?"
 msgstr ""
 
-#: ../image-watermark.php:755
+#: ../image-watermark.php:792
 msgid "Rate it 5"
 msgstr ""
 
-#: ../image-watermark.php:755
+#: ../image-watermark.php:792
 msgid "on WordPress.org"
 msgstr ""
 
-#: ../image-watermark.php:756
+#: ../image-watermark.php:793
 msgid "Blog about it & link to the"
 msgstr ""
 
-#: ../image-watermark.php:756
+#: ../image-watermark.php:793
 msgid "plugin page"
 msgstr ""
 
-#: ../image-watermark.php:757
+#: ../image-watermark.php:794
 msgid "Check out our other"
 msgstr ""
 
-#: ../image-watermark.php:757
+#: ../image-watermark.php:794
 msgid "WordPress plugins"
 msgstr ""
 
-#: ../image-watermark.php:761
+#: ../image-watermark.php:798
 msgid "Created by"
 msgstr ""
