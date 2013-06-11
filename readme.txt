@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -53,6 +53,11 @@ No questions yet.
 
 == Changelog ==
 
+= 1.1.3 =
+* New: Introducing API hooks: iw_before_apply_watermark, iw_after_apply_watermark, iw_watermark_options
+* Fix: Wrong watermark watermark path
+* Fix: Final fix (hopefully) for getimagesize() error
+
 = 1.1.2 =
 * New: Image quality option
 * New: Image format selection (progressive or baseline)
@@ -94,4 +99,4 @@ Initial release
 
 = 1.1.2 =
 
-Bugfix release. Added image quality & image format options.
+Final fix (hopefully) for getimagesize() error and wrong watermark file path

@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Image Watermark
-Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library.
-Version: 1.1.2
+Description: Image Watermark allows you to automatically and manually watermark images uploaded to the WordPress Media Library.
+Version: 1.1.3
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -109,10 +109,19 @@ class Image_Watermark
 				//security check
 				check_admin_referer('bulk-media');
 
+				$location = remove_query_arg(array('watermarked', 'skipped', 'trashed', 'untrashed', 'deleted', 'message', 'ids', 'posted'), wp_get_referer());
+
+				if(!$location)
+				{
+					$location = 'upload.php';
+				}
+
+				$location = add_query_arg('paged', $wp_list_table->get_pagenum(), $location);
+
 				//do we have selected attachments?
 				if(isset($_REQUEST['media']) && !empty($_REQUEST['media']))
 				{
-					$watermarked = 0;
+					$watermarked = $skipped = 0;
 
 					foreach($_REQUEST['media'] as $media_id)
 					{
@@ -124,11 +133,14 @@ class Image_Watermark
 							$this->apply_watermark($data);
 							$watermarked++;
 						}
+						else $skipped++;
 					}
 
-					wp_redirect(add_query_arg(array('watermarked' => $watermarked), wp_get_referer()));
-					exit();
+					$location = add_query_arg(array('watermarked' => $watermarked, 'skipped' => $skipped), $location);
 				}
+
+				wp_redirect($location);
+				exit();
 			}
 			else return;
 		}
@@ -142,16 +154,21 @@ class Image_Watermark
 	{
 		global $post_type, $pagenow;
 
-		if($pagenow === 'upload.php' && $post_type === 'attachment' && isset($_REQUEST['watermarked']))
+		if($pagenow === 'upload.php' && $post_type === 'attachment' && isset($_REQUEST['watermarked'], $_REQUEST['skipped']))
 		{
-			if($_REQUEST['watermarked'] === 0)
+			$watermarked = (int)$_REQUEST['watermarked'];
+			$skipped = (int)$_REQUEST['skipped'];
+
+			if($watermarked === 0)
 			{
-				echo '<div class="error"><p>'.__('Watermark couldn\'t be applied to selected images or no images were selected.', 'image-watermark').'</p></div>';
+				echo '<div class="error"><p>'.__('Watermark could not be applied to selected files or no valid images (JPEG, PNG) were selected.', 'image-watermark').($skipped > 0 ? ' '.__('Skipped files', 'image-watermark').': '.$skipped.'.' : '').'</p></div>';
 			}
-			elseif($_REQUEST['watermarked'] > 0)
+			else
 			{
-				echo '<div class="updated"><p>'.sprintf(_n('Watermark was succesfully applied to 1 image.', 'Watermark was succesfully applied to %s images.', (int)$_REQUEST['watermarked'], 'image-watermark'), number_format_i18n((int)$_REQUEST['watermarked'])).'</p></div>';
+				echo '<div class="updated"><p>'.sprintf(_n('Watermark was succesfully applied to 1 image.', 'Watermark was succesfully applied to %s images.', $watermarked, 'image-watermark'), number_format_i18n($watermarked)).($skipped > 0 ? ' '.__('Skipped files', 'image-watermark').': '.$skipped.'.' : '').'</p></div>';
 			}
+
+			$_SERVER['REQUEST_URI'] = remove_query_arg(array('watermarked', 'skipped'), $_SERVER['REQUEST_URI']);
 		}
 	}
 
@@ -515,6 +532,10 @@ class Image_Watermark
 
 		//update-fix from 1.1.0 to later versions
 		$watermark_image['manual_watermarking'] = (isset($watermark_image['manual_watermarking']) ? $watermark_image['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
+
+		//update-fix from 1.1.2 to later versions
+		$watermark_image['jpeg_format'] = (isset($watermark_image['jpeg_format']) ? $watermark_image['jpeg_format'] : $this->_options['df_watermark_image']['jpeg_format']);
+		$watermark_image['quality'] = (isset($watermark_image['quality']) ? $watermark_image['quality'] : $this->_options['df_watermark_image']['quality']);
 
 		$errors = '';
 
@@ -890,6 +911,9 @@ class Image_Watermark
 			$options[$option] = get_option($option);
 		}
 
+		//update-fix from 1.1.2 to later versions
+		$options['df_watermark_image']['quality'] = (isset($options['df_watermark_image']['quality']) ? $options['df_watermark_image']['quality'] : $this->_options['df_watermark_image']['quality']);
+
 		$options = apply_filters('iw_watermark_options', $options);
 
 		//get image mime type
@@ -901,6 +925,9 @@ class Image_Watermark
 			//add watermark image to image
 			if($this->add_watermark_image($image, $options) !== FALSE)
 			{
+				//update-fix from 1.1.2 to later versions
+				$options['df_watermark_image']['jpeg_format'] = (isset($options['df_watermark_image']['jpeg_format']) ? $options['df_watermark_image']['jpeg_format'] : $this->_options['df_watermark_image']['jpeg_format']);
+
 				if($options['df_watermark_image']['jpeg_format'] === 'progressive')
 				{
 					imageinterlace($image, true);
@@ -923,12 +950,12 @@ class Image_Watermark
 	private function add_watermark_image($image, array $opt)
 	{
 		//due to allow_url_fopen restrictions on some servers in getimagesize() we need to use server path (not URL)
-		$size_type = $opt['df_watermark_image']['watermark_size_type'];
 		$upload_dir = wp_upload_dir();
-		$url = $upload_dir['basedir'].strrchr(wp_get_attachment_url($opt['df_watermark_image']['url']), '/');
-		$watermark_file = getimagesize($url);
+		$watermark_file = wp_get_attachment_metadata($opt['df_watermark_image']['url'], TRUE);
+		$url = $upload_dir['basedir'].DIRECTORY_SEPARATOR.$watermark_file['file'];
+		$watermark_file_info = getimagesize($url);
 
-		switch($watermark_file['mime'])
+		switch($watermark_file_info['mime'])
 		{
 			case 'image/jpeg':
 			case 'image/pjpeg':
@@ -951,6 +978,7 @@ class Image_Watermark
 		$watermark_height = imagesy($watermark);
 		$img_width = imagesx($image);
 		$img_height = imagesy($image);
+		$size_type = $opt['df_watermark_image']['watermark_size_type'];
 
 		if($size_type === 1) //custom
 		{
@@ -1018,7 +1046,7 @@ class Image_Watermark
 		$dest_x += $opt['df_watermark_image']['offset_width'];
 		$dest_y += $opt['df_watermark_image']['offset_height'];
 
-		$this->imagecopymerge_alpha($image, $this->resize($watermark, $url, $w, $h), $dest_x, $dest_y, 0, 0, $w, $h, $opt['df_watermark_image']['transparent']);
+		$this->imagecopymerge_alpha($image, $this->resize($watermark, $url, $w, $h, $watermark_file_info), $dest_x, $dest_y, 0, 0, $w, $h, $opt['df_watermark_image']['transparent']);
 
 		return $image;
 	}
@@ -1046,9 +1074,8 @@ class Image_Watermark
 	/**
 	 * Resizes image
 	*/
-	private function resize($im, $path, $nWidth, $nHeight)
+	private function resize($im, $path, $nWidth, $nHeight, $imgInfo)
 	{
-		$imgInfo = getimagesize($path);
 		$newImg = imagecreateTRUEcolor($nWidth, $nHeight);
 
 		//check if this image is PNG, then set if transparent
@@ -1111,7 +1138,7 @@ class Image_Watermark
 				break;
 
 			case 'image/png':
-				imagepng($image, $filepath);
+				imagepng($image, $filepath, (int)round(9 * $quality / 100));
 				break;
 		}
 	}
