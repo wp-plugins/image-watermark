@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically and manually watermark images uploaded to the WordPress Media Library.
-Version: 1.1.3
+Version: 1.1.4
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -613,7 +613,7 @@ class Image_Watermark
 										<input id="df_option_everywhere" type="radio" name="df_watermark_cpt_on" value="everywhere" <?php echo ($first_checked === TRUE ? 'checked="checked"' : ''); ?>/><label for="df_option_everywhere"><?php _e('everywhere', 'image-watermark'); ?></label>
 										<input id="df_option_cpt" type="radio" name="df_watermark_cpt_on" value="specific" <?php echo ($second_checked === TRUE ? 'checked="checked"' : ''); ?> /><label for="df_option_cpt"><?php _e('on selected post types only', 'image-watermark'); ?></label>
 									</div>
-									<div id="cpt-select" <? echo ($second_checked === FALSE ? 'style="display: none;"' : ''); ?>>
+									<div id="cpt-select" <?php echo ($second_checked === FALSE ? 'style="display: none;"' : ''); ?>>
 										<?php foreach($this->getCustomPostTypes() as $cpt) : ?>
                                             <input name="df_watermark_cpt_on_type[<?php echo $cpt; ?>]" type="checkbox" id="<?php echo $cpt; ?>" value="1" <?php echo (in_array($cpt, $watermark_cpt_on) ? ' checked="checked"' : ''); ?> />
                                             <label for="<?php echo $cpt; ?>"><?php echo $cpt; ?></label>
@@ -689,7 +689,7 @@ class Image_Watermark
                                         <?php if($imageSelected === TRUE) {
 										$image = wp_get_attachment_image_src($watermark_image['url'], array(300, 300), FALSE);
 										?>
-                                        <img id="previewImg_image" src="<? echo $image[0]; ?>" alt="" width="300" />
+                                        <img id="previewImg_image" src="<?php echo $image[0]; ?>" alt="" width="300" />
                                         <?php } else { ?>
 										<img id="previewImg_image" src="" alt="" width="300" style="display: none;" />
 										<?php } ?>

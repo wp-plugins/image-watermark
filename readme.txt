@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
-Tested up to: 3.5.1
-Stable tag: 1.1.3
+Tested up to: 3.6
+Stable tag: 1.1.4
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -34,6 +34,11 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Disable image protection for logged-in users
 * .pot file for translations included
 
+= Translations: =
+
+* Arabic - by Hassan Hisham
+* Polish - by Bartosz Arendt
+
 
 == Installation ==
 
@@ -52,6 +57,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.1.4 =
+* New: Arabic translation, thanks to Hassan Hisham
 
 = 1.1.3 =
 * New: Introducing API hooks: iw_before_apply_watermark, iw_after_apply_watermark, iw_watermark_options
@@ -97,6 +105,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.1.2 =
-
-Final fix (hopefully) for getimagesize() error and wrong watermark file path
+= 1.1.4 =
+New: Arabic translation, thanks to Hassan Hisham
