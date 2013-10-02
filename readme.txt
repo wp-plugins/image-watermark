@@ -60,7 +60,7 @@ No questions yet.
 
 = 1.2.0 =
 * New: Frontend watermarking option (for front-end upload plugins and custom front-end upload code)
-* New: Introducing 'iw_watermark_display' filter
+* New: Introducing iw_watermark_display filter
 * New: Option to delete all plugin data on deactivation
 * Tweak: Rewritten watermark application method
 * Tweak: UI enhancements for settings page
@@ -113,4 +113,4 @@ Initial release
 == Upgrade Notice ==
 
 = 1.2.0 =
-* New: Frontend watermarking option, rewritten watermark application methods and 'iw_watermark_display' filter
+* New: Frontend watermarking option, rewritten watermark application methods and iw_watermark_display filter
