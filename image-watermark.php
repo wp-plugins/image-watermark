@@ -30,6 +30,7 @@ if(version_compare(PHP_VERSION, '5.0', '<') || version_compare($wp_version, '3.5
 
 class Image_Watermark
 {
+	private $is_admin = TRUE;
 	private $_messages = array();
 	private $_image_sizes = array();
 	private $_watermark_positions = array (
@@ -48,6 +49,7 @@ class Image_Watermark
 			'url' => 0,
 			'width' => 80,
 			'plugin_off' => 0,
+			'frontend_active' => FALSE,
 			'manual_watermarking' => 0,
 			'position' => 'bottom_right',
 			'watermark_size_type' => 2,
@@ -57,13 +59,15 @@ class Image_Watermark
 			'absolute_height' => 0,
 			'transparent' => 50,
 			'quality' => 90,
-			'jpeg_format' => 'baseline'
+			'jpeg_format' => 'baseline',
+			'deactivation_delete' => FALSE
 		),
 		'df_image_protection' => array(
 			'rightclick' => 0,
 			'draganddrop' => 0,
 			'forlogged' => 0,
-		)
+		),
+		'version' => '1.2'
 	);
 
 
@@ -71,6 +75,23 @@ class Image_Watermark
 	{
 		//register installer function
 		register_activation_hook(__FILE__, array(&$this, 'activate_watermark'));
+		register_deactivation_hook(__FILE__, array(&$this, 'deactivate_watermark'));
+
+		//update-fix from 1.1.4
+		if(version_compare((($db_version = get_option('image_watermark_version')) === FALSE ? '1.0.0' : $db_version), '1.2', '<'))
+		{
+			$options_wi = (($tmp = get_option('df_watermark_image')) !== FALSE ? $tmp : $this->_options['df_watermark_image']);
+
+			//new options
+			$options_wi['frontend_active'] = $this->_options['df_watermark_image']['frontend_active'];
+			$options_wi['deactivation_delete'] = $this->_options['df_watermark_image']['deactivation_delete'];
+
+			//save new options
+			update_option('df_watermark_image', $options_wi);
+
+			//update version
+			update_option('image_watermark_version', $this->_options['version']);
+		}
 
 		//actions
 		add_action('plugins_loaded', array(&$this, 'load_textdomain'));
@@ -84,7 +105,37 @@ class Image_Watermark
 		//filters
 		add_filter('plugin_row_meta', array(&$this, 'plugin_extend_links'), 10, 2);
 		add_filter('plugin_action_links', array(&$this, 'plugin_settings_link'), 10, 2);
-		add_filter('wp_handle_upload_prefilter', array(&$this, 'delay_upload_filter'), 10, 1);
+		add_filter('wp_handle_upload', array(&$this, 'handle_upload_files'));
+	}
+
+
+	/**
+	 * Applies watermark everywhere or for specific (custom) post types
+	*/
+	public function handle_upload_files($file)
+	{
+		$opt = get_option('df_watermark_image');
+
+		//admin side, we cant use is_admin() here due to frontend's admin-ajax.php request
+		if(strpos(strtolower(wp_get_referer()), strtolower(admin_url()), 0) === 0)
+		{
+			$this->is_admin = TRUE;
+
+			//apply watermark if backend is active and watermark image is set
+			if($opt['plugin_off'] === 0 && $opt['url'] !== 0 && in_array($file['type'], $this->_allowed_mime_types))
+				add_filter('wp_generate_attachment_metadata', array(&$this, 'apply_watermark'), 10, 2);
+		}
+		//front side
+		else
+		{
+			$this->is_admin = FALSE;
+
+			//apply watermark if frontend is active and watermark image is set
+			if($opt['frontend_active'] === TRUE && $opt['url'] !== 0 && in_array($file['type'], $this->_allowed_mime_types))
+				add_filter('wp_generate_attachment_metadata', array(&$this, 'apply_watermark'), 10, 2);
+		}
+
+		return $file;
 	}
 
 
@@ -100,7 +151,7 @@ class Image_Watermark
 			$opt = get_option('df_watermark_image');
 			$wp_list_table = _get_list_table('WP_Media_List_Table');
 
-			//update-fix from 1.1.0 to later versions
+			//update-fix from 1.1.0
 			$opt['manual_watermarking'] = (isset($opt['manual_watermarking']) ? $opt['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
 
 			//only if manual watermarking is turned on and image watermark is set
@@ -130,7 +181,7 @@ class Image_Watermark
 						//is this really an image?
 						if(in_array(get_post_mime_type($media_id), $this->_allowed_mime_types) && is_array($data))
 						{
-							$this->apply_watermark($data);
+							$this->apply_watermark($data, 'manual');
 							$watermarked++;
 						}
 						else $skipped++;
@@ -182,29 +233,6 @@ class Image_Watermark
 		$this->_image_sizes[] = 'full';
 
 		sort($this->_image_sizes, SORT_STRING);
-	}
-
-
-	/**
-	 * Applies watermark everywhere or for specific post types
-	*/
-	public function delay_upload_filter($file)
-	{
-		$option_wi = get_option('df_watermark_image');
-
-		//if plugin is activated and turned on and watermark image is set
-		if($option_wi['plugin_off'] === 0 && $option_wi['url'] !== 0 && isset($_REQUEST['post_id']) && in_array($file['type'], $this->_allowed_mime_types))
-		{
-			$option = get_option('df_watermark_cpt_on');
-
-			//when apply watermark? everywhere or specific custom post types
-			if(((isset($option[0], $_REQUEST['name']) && $option[0] === 'everywhere') || in_array(get_post_type($_REQUEST['post_id']), array_keys($option)) === TRUE))
-			{
-				add_filter('wp_generate_attachment_metadata', array(&$this, 'apply_watermark'));
-			}
-		}
-
-		return $file;
 	}
 
 
@@ -270,7 +298,7 @@ class Image_Watermark
 		{
 			$opt = get_option('df_watermark_image');
 
-			//update-fix from 1.1.0 to later versions
+			//update-fix from 1.1.0
 			$opt['manual_watermarking'] = (isset($opt['manual_watermarking']) ? $opt['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
 
 			if($opt['manual_watermarking'] === 1)
@@ -293,16 +321,12 @@ class Image_Watermark
 		{
 			wp_enqueue_media();
 
-			wp_enqueue_script(
+			wp_register_script(
 				'upload-manager',
 				plugins_url('/js/upload-manager-admin.js', __FILE__)
 			);
 
-			wp_enqueue_script(
-				'watermark-admin-script',
-				plugins_url('js/image-watermark-admin.js', __FILE__),
-				array('jquery', 'jquery-ui-core', 'jquery-ui-button')
-			);
+			wp_enqueue_script('upload-manager');
 
 			wp_localize_script(
 				'upload-manager',
@@ -318,8 +342,35 @@ class Image_Watermark
 				)
 			);
 
-			wp_enqueue_style('watermark-style', plugins_url('css/image-watermark.css', __FILE__));
-			wp_enqueue_style('wp-like-ui-theme', plugins_url('css/wp-like-ui-theme.css', __FILE__));
+			wp_register_script(
+				'watermark-admin-script',
+				plugins_url('js/image-watermark-admin.js', __FILE__),
+				array('jquery', 'jquery-ui-core', 'jquery-ui-button', 'jquery-ui-slider')
+			);
+
+			wp_enqueue_script('watermark-admin-script');
+
+			wp_localize_script(
+				'watermark-admin-script',
+				'iwArgs',
+				array(
+					'resetToDefaults' => __('Are you sure you want to reset settings to defaults?', 'image-watermark')
+				)
+			);
+
+			wp_register_style(
+				'watermark-style',
+				plugins_url('css/image-watermark.css', __FILE__)
+			);
+
+			wp_enqueue_style('watermark-style');
+
+			wp_register_style(
+				'wp-like-ui-theme',
+				plugins_url('css/wp-like-ui-theme.css', __FILE__)
+			);
+
+			wp_enqueue_style('wp-like-ui-theme');
 		}
 	}
 
@@ -461,6 +512,11 @@ class Image_Watermark
 										$tmp[$image_option] = (isset($_POST[$option][$image_option]) ? ($_POST[$option][$image_option] <= 0 ? 0 : ($_POST[$option][$image_option] >= 100 ? 100 : (int)$_POST[$option][$image_option])) : $this->_options[$option][$image_option]);
 										break;
 
+									case 'deactivation_delete':
+									case 'frontend_active':
+										$tmp[$image_option] = (isset($_POST[$option][$image_option]) ? ($_POST[$option][$image_option] == 1 ? TRUE : FALSE) : $this->_options[$option][$image_option]);
+										break;
+
 									case 'plugin_off':
 									case 'manual_watermarking':
 									case 'offset_width':
@@ -525,34 +581,52 @@ class Image_Watermark
 				<p>'.__('Settings saved.').'</p>
 			</div>';
 		}
+		//reset to defaults
+		elseif(isset($_POST['reset']))
+		{
+			foreach($this->_options as $option => $value)
+			{
+				update_option($option, $value);
+			}
+
+			echo '
+			<div class="updated">
+				<p>'.__('Settings restored to defaults.').'</p>
+			</div>';
+		}
 
 		$watermark_image = get_option('df_watermark_image');
 		$image_protection = get_option('df_image_protection');
 		$watermark_on = get_option('df_watermark_on');
 
-		//update-fix from 1.1.0 to later versions
+		//update-fix from 1.1.0
 		$watermark_image['manual_watermarking'] = (isset($watermark_image['manual_watermarking']) ? $watermark_image['manual_watermarking'] : $this->_options['df_watermark_image']['manual_watermarking']);
 
-		//update-fix from 1.1.2 to later versions
+		//update-fix from 1.1.2
 		$watermark_image['jpeg_format'] = (isset($watermark_image['jpeg_format']) ? $watermark_image['jpeg_format'] : $this->_options['df_watermark_image']['jpeg_format']);
 		$watermark_image['quality'] = (isset($watermark_image['quality']) ? $watermark_image['quality'] : $this->_options['df_watermark_image']['quality']);
 
 		$errors = '';
 
-		if(($watermark_image['plugin_off'] === 0 || $watermark_image['manual_watermarking'] === 1))
+		if($watermark_image['plugin_off'] === 0 || $watermark_image['manual_watermarking'] === 1)
 		{
 			if($watermark_image['url'] === 0)
-			{
-				$errors .= __('Watermark will not be applied when <b>watermark image is not set</b>.', 'image-watermark');
-			}
+				$errors .= ($errors !== '' ? '<br />' : '').__('Watermark will not be applied when <b>watermark image is not set</b>.', 'image-watermark');
 
 			if(empty($watermark_on))
-			{
 				$errors .= ($errors !== '' ? '<br />' : '').__('Watermark will not be applied when <b>no image sizes are selected</b>.', 'image-watermark');
-			}
-
-			echo ($errors !== '' ? sprintf('<div class="error"><p>%s</p></div>', $errors) : '');
 		}
+
+		if($watermark_image['frontend_active'] === TRUE)
+		{
+			if($watermark_image['url'] === 0)
+				$errors .= ($errors !== '' ? '<br />' : '').__('Watermark will not be applied while frontend image upload if <b>watermark image is not set</b>.', 'image-watermark');
+
+			if(empty($watermark_on))
+				$errors .= ($errors !== '' ? '<br />' : '').__('Watermark will not be applied while frontend image upload if <b>no image sizes are selected</b>.', 'image-watermark');
+		}
+
+		echo ($errors !== '' ? sprintf('<div class="error"><p>%s</p></div>', $errors) : '');
 	?>
 	<div class="wrap">
         <div id="icon-options-general" class="icon32"><br /></div>
@@ -620,6 +694,38 @@ class Image_Watermark
                                         <?php endforeach; ?>
 										</div>
                                     <p class="howto"><?php echo __('Check custom post types on which watermark should be applied to uploaded images.', 'image-watermark'); ?></p>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </table>
+					<table id="watermark-general-table-front" class="form-table">
+                        <tr valign="top">
+                            <th scope="row"><?php echo __('Automatic frontend watermarking', 'image-watermark'); ?></th>
+                            <td class="wr_width">
+                                <fieldset class="wr_width">
+                                    <div id="run-watermark-front">
+                                        <label for="frontend_active"><?php echo __('on', 'image-watermark'); ?></label>
+                                        <input type="radio" id="frontend_active" value="1" name="df_watermark_image[frontend_active]" <?php checked($watermark_image['frontend_active'], TRUE, TRUE); ?> />
+                                        <label for="frontend_inactive"><?php echo __('off', 'image-watermark'); ?></label>
+                                        <input type="radio" id="frontend_inactive" value="0" name="df_watermark_image[frontend_active]" <?php checked($watermark_image['frontend_active'], FALSE, TRUE); ?> />
+                                    </div>
+                                    <p class="howto"><?php echo __('Enable or disable watermark for frontend image uploading. (uploading script is not included, but you may use a plugin or custom code). Notice: This functionality works only if uploaded images are processed using WordPress native upload methods.', 'image-watermark'); ?></p>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </table>
+					<table id="watermark-general-table-deactivation" class="form-table">
+                        <tr valign="top">
+                            <th scope="row"><?php echo __('Plugin deactivation', 'image-watermark'); ?></th>
+                            <td class="wr_width">
+                                <fieldset class="wr_width">
+                                    <div id="deactivation-delete">
+                                        <label for="deactivate_on"><?php echo __('on', 'image-watermark'); ?></label>
+                                        <input type="radio" id="deactivate_on" value="1" name="df_watermark_image[deactivation_delete]" <?php checked($watermark_image['deactivation_delete'], TRUE, TRUE); ?> />
+                                        <label for="deactivate_off"><?php echo __('off', 'image-watermark'); ?></label>
+                                        <input type="radio" id="deactivate_off" value="0" name="df_watermark_image[deactivation_delete]" <?php checked($watermark_image['deactivation_delete'], FALSE, TRUE); ?> />
+                                    </div>
+                                    <p class="howto"><?php echo __('Delete all database settings on plugin deactivation.', 'image-watermark'); ?></p>
                                 </fieldset>
                             </td>
                         </tr>
@@ -742,7 +848,12 @@ class Image_Watermark
                             <th scope="row"><?php _e('Scale of watermark in relation to image width', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                    <input type="text" size="5" name="df_watermark_image[width]" value="<?php echo $watermark_image['width']; ?>">%
+									<div>
+										<input type="text" id="iw_size_input" maxlength="3" class="hide-if-js" name="df_watermark_image[width]" value="<?php echo $watermark_image['width']; ?>" />
+										<div class="wplike-slider">
+											<span class="left hide-if-no-js">0</span><span class="middle" id="iw_size_span" title="<?php echo $watermark_image['width']; ?>"></span><span class="right hide-if-no-js">100</span>
+										</div>
+									</div>
                                 </fieldset>
                                 <p class="howto"><?php _e('This value will be used if "scaled" method if selected above. <br />Enter a number ranging from 0 to 100. 100 makes width of watermark image equal to width of the image it is applied to.', 'image-watermark'); ?></p>
                             </td>
@@ -751,7 +862,12 @@ class Image_Watermark
                             <th scope="row"><?php _e('Watermark transparency / opacity', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                    <input type="text" size="5" maxlength="3" name="df_watermark_image[transparent]" value="<?php echo $watermark_image['transparent']; ?>">%
+									<div>
+										<input type="text" id="iw_opacity_input" maxlength="3" class="hide-if-js" name="df_watermark_image[transparent]" value="<?php echo $watermark_image['transparent']; ?>" />
+										<div class="wplike-slider">
+											<span class="left hide-if-no-js">0</span><span class="middle" id="iw_opacity_span" title="<?php echo $watermark_image['transparent']; ?>"></span><span class="right hide-if-no-js">100</span>
+										</div>
+									</div>
                                 </fieldset>
                                 <p class="howto"><?php _e('Enter a number ranging from 0 to 100. 0 makes watermark image completely transparent, 100 shows it as is.', 'image-watermark'); ?></p>
                             </td>
@@ -760,9 +876,14 @@ class Image_Watermark
                             <th scope="row"><?php _e('Image quality', 'image-watermark'); ?></th>
                             <td class="wr_width">
                                 <fieldset class="wr_width">
-                                    <input type="text" size="5" maxlength="3" name="df_watermark_image[quality]" value="<?php echo $watermark_image['quality']; ?>">%
+									<div>
+										<input type="text" id="iw_quality_input" maxlength="3" class="hide-if-js" name="df_watermark_image[quality]" value="<?php echo $watermark_image['quality']; ?>" />
+										<div class="wplike-slider">
+											<span class="left hide-if-no-js">0</span><span class="middle" id="iw_quality_span" title="<?php echo $watermark_image['quality']; ?>"></span><span class="right hide-if-no-js">100</span>
+										</div>
+									</div>
                                 </fieldset>
-                                <p class="howto"><?php _e('Set watermark image quality.', 'image-watermark'); ?></p>
+                                <p class="howto"><?php _e('Set output image quality.', 'image-watermark'); ?></p>
                             </td>
                         </tr>
 						<tr valign="top">
@@ -799,10 +920,10 @@ class Image_Watermark
                     </table>
                     <hr />
                     <input type="submit" id="watermark-submit" class="button button-primary" name="submit" value="<?php _e('Save Changes', 'image-watermark'); ?>" />
+					<input type="submit" id="watermark-reset" class="button button-secondary" name="reset" value="<?php _e('Reset to defaults', 'image-watermark'); ?>" />
                 </form>
             </div>
         </div>
-        
         <div id="df-credits" class="postbox-container">
         	<h3 class="metabox-title"><?php _e('Image Watermark', 'image-watermark'); ?></h3>
             <div class="inner">
@@ -814,30 +935,47 @@ class Image_Watermark
 				<?php _e('Blog about it & link to the','image-watermark'); ?> <a href="http://dfactory.eu/plugins/image-watermark/" target="_blank" title="<?php _e('plugin page', 'image-watermark'); ?>"><?php _e('plugin page', 'image-watermark'); ?></a><br />
                 <?php _e('Check out our other', 'image-watermark'); ?> <a href="http://dfactory.eu/plugins/" target="_blank" title="<?php _e('WordPress plugins', 'image-watermark'); ?>"><?php _e('WordPress plugins', 'image-watermark'); ?></a>
                 </p>
-                
                 <hr />
                 <p class="df-link"><?php _e('Created by', 'restrict-widgets'); ?><a href="http://www.dfactory.eu" target="_blank" title="dFactory - Quality plugins for WordPress"><img src="<?php echo plugins_url( 'images/logo-dfactory.png' , __FILE__ ); ?>" title="dFactory - Quality plugins for WordPress" alt="dFactory - Quality plugins for WordPress" /></a></p>
-                
 			</div>
       	</div>
-        
 	</div>
 	<?php
 	}
 
 
 	/**
-	 * Plugin installation method
+	 * Plugin activation
 	 */
 	public function activate_watermark()
 	{
-		//record install time
-		add_option('df_watermark_installed', time(), NULL, 'no');
+		//save install time
+		add_option('df_watermark_installed', current_time('timestamp'), '', 'no');
 
 		//loop through default options and add them into DB
 		foreach($this->_options as $option => $value)
 		{
-			add_option($option, $value, NULL, 'no');
+			add_option($option, $value, '', 'no');
+		}
+	}
+
+
+	/**
+	 * Plugin deactivation
+	 */
+	public function deactivate_watermark()
+	{
+		$opt = get_option('df_watermark_image');
+
+		//remove options from database?
+		if($opt['deactivation_delete'] === TRUE)
+		{
+			delete_option('df_image_protection');
+			delete_option('df_watermark_cpt_on');
+			delete_option('df_watermark_image');
+			delete_option('df_watermark_installed');
+			delete_option('df_watermark_on');
+			delete_option('image_watermark_version');
 		}
 	}
 
@@ -848,18 +986,29 @@ class Image_Watermark
 	 * @param array $data
 	 * @return array
 	 */
-	public function apply_watermark($data)
+	public function apply_watermark($data, $attachment_id)
 	{
+		$opt_img = get_option('df_watermark_image');
+		$opt_cpt = get_option('df_watermark_cpt_on');
+		$opt_won = get_option('df_watermark_on');
+
+		$post = get_post($attachment_id);
+		$post_id = (int)$post->post_parent;
+
+		//if something is wrong we dont apply the watermark
+		if(($attachment_id === 'manual' || $this->is_admin === TRUE) && !((isset($opt_cpt[0]) && $opt_cpt[0] === 'everywhere') || ($post_id > 0 && in_array(get_post_type($post_id), array_keys($opt_cpt)) === TRUE)))
+			return $data;
+
+		if(apply_filters('iw_watermark_display', $attachment_id) === FALSE)
+			return $data;
+
 		$upload_dir = wp_upload_dir();
 
 		//is this really an iamge?
 		if(getimagesize($upload_dir['basedir'].DIRECTORY_SEPARATOR.$data['file']) !== FALSE)
 		{
-			//get settings for watermarking
-			$watermark_on = get_option('df_watermark_on');
-
 			//loop through active image sizes
-			foreach($watermark_on as $image_size => $active_size)
+			foreach($opt_won as $image_size => $active_size)
 			{
 				if($active_size === 1)
 				{
@@ -911,7 +1060,7 @@ class Image_Watermark
 			$options[$option] = get_option($option);
 		}
 
-		//update-fix from 1.1.2 to later versions
+		//update-fix from 1.1.2
 		$options['df_watermark_image']['quality'] = (isset($options['df_watermark_image']['quality']) ? $options['df_watermark_image']['quality'] : $this->_options['df_watermark_image']['quality']);
 
 		$options = apply_filters('iw_watermark_options', $options);
@@ -925,7 +1074,7 @@ class Image_Watermark
 			//add watermark image to image
 			if($this->add_watermark_image($image, $options) !== FALSE)
 			{
-				//update-fix from 1.1.2 to later versions
+				//update-fix from 1.1.2
 				$options['df_watermark_image']['jpeg_format'] = (isset($options['df_watermark_image']['jpeg_format']) ? $options['df_watermark_image']['jpeg_format'] : $this->_options['df_watermark_image']['jpeg_format']);
 
 				if($options['df_watermark_image']['jpeg_format'] === 'progressive')
