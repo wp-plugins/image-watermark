@@ -3,12 +3,12 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
-Tested up to: 3.6
-Stable tag: 1.1.4
+Tested up to: 3.6.1
+Stable tag: 1.2.0
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
-Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library.
+Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
 
 == Description ==
 
@@ -43,9 +43,9 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 == Installation ==
 
 1. Install Image Watermark either via the WordPress.org plugin directory, or by uploading the files to your server
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to the Watermark menu in Settings and set your watermarking options.
-1. Enable watermark to apply watermark to uploaded images or go to Media Library to apply watermark to previously uploaded images
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Go to the Watermark menu in Settings and set your watermarking options.
+4. Enable watermark to apply watermark to uploaded images or go to Media Library to apply watermark to previously uploaded images
 
 == Frequently Asked Questions ==
 
@@ -57,6 +57,13 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.0 =
+* New: Frontend watermarking option (for front-end upload plugins and custom front-end upload code)
+* New: Introducing 'iw_watermark_display' filter
+* New: Option to delete all plugin data on deactivation
+* Tweak: Rewritten watermark application method
+* Tweak: UI enhancements for settings page
 
 = 1.1.4 =
 * New: Arabic translation, thanks to Hassan Hisham
@@ -105,5 +112,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.1.4 =
-New: Arabic translation, thanks to Hassan Hisham
+= 1.2.0 =
+* New: Frontend watermarking option, rewritten watermark application methods and 'iw_watermark_display' filter
