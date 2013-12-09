@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
-Tested up to: 3.6.1
-Stable tag: 1.2.0
+Tested up to: 3.7.1
+Stable tag: 1.2.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -37,6 +37,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 = Translations: =
 
 * Arabic - by Hassan Hisham
+* German - by Matthias Siebler
 * Polish - by Bartosz Arendt
 
 
@@ -57,6 +58,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.1 =
+* New: German translation, thanks to Matthias Siebler
 
 = 1.2.0 =
 * New: Frontend watermarking option (for front-end upload plugins and custom front-end upload code)
@@ -112,5 +116,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.0 =
-* New: Frontend watermarking option, rewritten watermark application methods and iw_watermark_display filter
+= 1.2.1 =
+* New: German translation, thanks to Matthias Siebler
