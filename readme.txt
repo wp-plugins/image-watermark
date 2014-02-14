@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
-Tested up to: 3.7.1
-Stable tag: 1.2.1
+Tested up to: 3.8.1
+Stable tag: 1.3.0
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -58,6 +58,11 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.0 =
+* Tweak: Manual watermarking now works even if selected post types are selected
+* Tweak: UI improvements for WP 3.8
+* Fix: Image protection options not saving properly
 
 = 1.2.1 =
 * New: German translation, thanks to Matthias Siebler
@@ -116,5 +121,7 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.1 =
-* New: German translation, thanks to Matthias Siebler
+= 1.3.0 =
+* Tweak: Manual watermarking now works even if selected post types are selected
+* Tweak: UI improvements for WP 3.8
+* Fix: Image protection options not saving properly

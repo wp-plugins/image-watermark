@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
-Version: 1.2.1
+Version: 1.3.0
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -69,7 +69,7 @@ class Image_Watermark
 			'draganddrop' => 0,
 			'forlogged' => 0,
 		),
-		'version' => '1.2.0'
+		'version' => '1.3.0'
 	);
 
 
@@ -172,7 +172,7 @@ class Image_Watermark
 				$location = add_query_arg('paged', $wp_list_table->get_pagenum(), $location);
 
 				//do we have selected attachments?
-				if(isset($_REQUEST['media']) && !empty($_REQUEST['media']))
+				if(!empty($_REQUEST['media']))
 				{
 					$watermarked = $skipped = 0;
 
@@ -186,7 +186,8 @@ class Image_Watermark
 							$this->apply_watermark($data, 'manual');
 							$watermarked++;
 						}
-						else $skipped++;
+						else
+							$skipped++;
 					}
 
 					$location = add_query_arg(array('watermarked' => $watermarked, 'skipped' => $skipped), $location);
@@ -384,10 +385,12 @@ class Image_Watermark
 	{
 		$options = get_option('df_image_protection');
 
+		$options['forlogged'] = (!empty($image_protection['forlogged']) ? 1 : 0);
+		$options['draganddrop'] = (!empty($image_protection['draganddrop']) ? 1 : 0);
+		$options['rightclick'] = (!empty($image_protection['rightclick']) ? 1 : 0);
+
 		if(($options['forlogged'] == 0 && is_user_logged_in()) || ($options['draganddrop'] == 0 && $options['rightclick'] == 0))
-		{
 			return;
-		}
 
 		wp_enqueue_script(
 			'no-right-click',
@@ -562,9 +565,9 @@ class Image_Watermark
 							foreach($this->_options[$option] as $protection => $value_p)
 							{
 								if(in_array($protection, array_keys($_POST[$option])))
-								{
 									$tmp[$protection] = 1;
-								}
+								else
+									$tmp[$protection] = 0;
 							}
 
 							update_option($option, $tmp);
@@ -633,314 +636,314 @@ class Image_Watermark
 	<div class="wrap">
         <div id="icon-options-general" class="icon32"><br /></div>
         <h2><?php echo __('Image Watermark Settings', 'image-watermark'); ?></h2>
-        <div id="image-watermark" class="postbox-container">
-        	<div class="metabox-holder">
-                <form method="post" action="">
-                	<h3><?php echo __('General settings', 'image-watermark'); ?></h3>
-                    <table id="watermark-general-table" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Automatic watermarking', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="run-watermark">
-                                        <label for="plugin_on"><?php echo __('on', 'image-watermark'); ?></label>
-                                        <input type="radio" id="plugin_on" value="0" name="df_watermark_image[plugin_off]" <?php checked($watermark_image['plugin_off'], 0, TRUE); ?> />
-                                        <label for="plugin_off"><?php echo __('off', 'image-watermark'); ?></label>
-                                        <input type="radio" id="plugin_off" value="1" name="df_watermark_image[plugin_off]" <?php checked($watermark_image['plugin_off'], 1, TRUE); ?> />
-                                    </div>
-                                    <p class="howto"><?php echo __('Enable or disable watermark for uploaded images.', 'image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                    </table>
-					<table id="watermark-manual-table" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Manual watermarking', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="run-manual-watermark">
-                                        <label for="manual_watermarking_on"><?php echo __('on', 'image-watermark'); ?></label>
-                                        <input type="radio" id="manual_watermarking_on" value="1" name="df_watermark_image[manual_watermarking]" <?php checked($watermark_image['manual_watermarking'], 1, TRUE); ?> />
-                                        <label for="manual_watermarking_off"><?php echo __('off', 'image-watermark'); ?></label>
-                                        <input type="radio" id="manual_watermarking_off" value="0" name="df_watermark_image[manual_watermarking]" <?php checked($watermark_image['manual_watermarking'], 0, TRUE); ?> />
-                                    </div>
-                                    <p class="howto"><?php echo __('Enable or disable Apply Watermark option for images in Media Library.', 'image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                    </table>
-                    <table id="watermark-for-table" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Enable watermark for', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="thumbnail-select">
-										<?php foreach($this->_image_sizes as $image_size) : ?>
-                                            <input name="df_watermark_on[<?php echo $image_size; ?>]" type="checkbox" id="<?php echo $image_size; ?>" value="1" <?php echo (in_array($image_size, array_keys($watermark_on)) ? ' checked="checked"' : ''); ?> />
-                                            <label for="<?php echo $image_size; ?>"><?php echo $image_size; ?></label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    <p class="howto"><?php echo __('Check image sizes on which watermark should appear. <b>Notice:</b> checking full size is not recommened as it\'s the original image.', 'image-watermark'); ?></p>
-                                    <?php $watermark_cpt_on = array_keys(get_option('df_watermark_cpt_on'));
-									if(in_array('everywhere', $watermark_cpt_on) && count($watermark_cpt_on) === 1)
-									{ $first_checked = TRUE; $second_checked = FALSE; $watermark_cpt_on = array(); }
-									else { $first_checked = FALSE; $second_checked = TRUE; } ?>
-									<div id="cpt-specific">
-										<input id="df_option_everywhere" type="radio" name="df_watermark_cpt_on" value="everywhere" <?php echo ($first_checked === TRUE ? 'checked="checked"' : ''); ?>/><label for="df_option_everywhere"><?php _e('everywhere', 'image-watermark'); ?></label>
-										<input id="df_option_cpt" type="radio" name="df_watermark_cpt_on" value="specific" <?php echo ($second_checked === TRUE ? 'checked="checked"' : ''); ?> /><label for="df_option_cpt"><?php _e('on selected post types only', 'image-watermark'); ?></label>
-									</div>
-									<div id="cpt-select" <?php echo ($second_checked === FALSE ? 'style="display: none;"' : ''); ?>>
-										<?php foreach($this->getCustomPostTypes() as $cpt) : ?>
-                                            <input name="df_watermark_cpt_on_type[<?php echo $cpt; ?>]" type="checkbox" id="<?php echo $cpt; ?>" value="1" <?php echo (in_array($cpt, $watermark_cpt_on) ? ' checked="checked"' : ''); ?> />
-                                            <label for="<?php echo $cpt; ?>"><?php echo $cpt; ?></label>
-                                        <?php endforeach; ?>
-										</div>
-                                    <p class="howto"><?php echo __('Check custom post types on which watermark should be applied to uploaded images.', 'image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                    </table>
-					<table id="watermark-general-table-front" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Automatic frontend watermarking', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="run-watermark-front">
-                                        <label for="frontend_active"><?php echo __('on', 'image-watermark'); ?></label>
-                                        <input type="radio" id="frontend_active" value="1" name="df_watermark_image[frontend_active]" <?php checked($watermark_image['frontend_active'], TRUE, TRUE); ?> />
-                                        <label for="frontend_inactive"><?php echo __('off', 'image-watermark'); ?></label>
-                                        <input type="radio" id="frontend_inactive" value="0" name="df_watermark_image[frontend_active]" <?php checked($watermark_image['frontend_active'], FALSE, TRUE); ?> />
-                                    </div>
-                                    <p class="howto"><?php echo __('Enable or disable watermark for frontend image uploading. (uploading script is not included, but you may use a plugin or custom code). Notice: This functionality works only if uploaded images are processed using WordPress native upload methods.', 'image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                    </table>
-					<table id="watermark-general-table-deactivation" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Plugin deactivation', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="deactivation-delete">
-                                        <label for="deactivate_on"><?php echo __('on', 'image-watermark'); ?></label>
-                                        <input type="radio" id="deactivate_on" value="1" name="df_watermark_image[deactivation_delete]" <?php checked($watermark_image['deactivation_delete'], TRUE, TRUE); ?> />
-                                        <label for="deactivate_off"><?php echo __('off', 'image-watermark'); ?></label>
-                                        <input type="radio" id="deactivate_off" value="0" name="df_watermark_image[deactivation_delete]" <?php checked($watermark_image['deactivation_delete'], FALSE, TRUE); ?> />
-                                    </div>
-                                    <p class="howto"><?php echo __('Delete all database settings on plugin deactivation.', 'image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                    </table>
-                    <hr />
-                    <h3><?php echo __('Watermark position', 'image-watermark'); ?></h3>
-                    <table id="watermark-position-table" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Watermark alignment','image-watermark'); ?></th>
-                            <td>
-                                <fieldset>
-                                    <table id="watermark_position" border="1">
-                                        <?php $watermark_position = $watermark_image['position']; ?>
-                                        <?php foreach($this->_watermark_positions['y'] as $y) : ?>
-                                        <tr>
-                                            <?php foreach($this->_watermark_positions['x'] as $x) : ?>
-                                            <td title="<?php echo ucfirst($y . ' ' . $x); ?>">
-                                                <input name="df_watermark_image[position]" type="radio" value="<?php echo $y . '_' . $x; ?>"<?php echo ($watermark_position == $y . '_' . $x ? ' checked="checked"' : NULL); ?> />
-                                            </td>
-                                            <?php endforeach; ?>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </table>
-                                    <p class="howto"><?php echo __('Choose the position of watermark image.','image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Watermark offset','image-watermark'); ?></th>
-                            <td>
-                                <fieldset>
-                                    <?php echo __('x:','image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[offset_width]" value="<?php echo $watermark_image['offset_width']; ?>"> <?php echo __('px','image-watermark'); ?>
-                                    <br />
-                                    <?php echo __('y:','image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[offset_height]" value="<?php echo $watermark_image['offset_height']; ?>"> <?php echo __('px','image-watermark'); ?>
-                                </fieldset>
-                            </td>
-                        </tr>
-                    </table>
-                    <hr />
+        
+	        <div class="image-watermark-settings">
+	        	<div class="df-credits">
+		        	<h3 class="hndle"><?php _e('Image Watermark', 'image-watermark'); ?></h3>
+		            <div class="inside">
+		                <h4 class="inner"><?php _e('Need support?', 'image-watermark'); ?></h4>
+		                <p class="inner"><?php _e('If you are having problems with this plugin, please talk about them in the', 'image-watermark'); ?> <a href="http://dfactory.eu/support/" target="_blank" title="<?php _e('Support forum', 'image-watermark'); ?>"><?php _e('Support forum', 'image-watermark'); ?></a></p>
+		                <hr />
+		                <h4 class="inner"><?php _e('Do you like this plugin?', 'image-watermark'); ?></h4>
+		                <p class="inner"><a href="http://wordpress.org/support/view/plugin-reviews/image-watermark?filter=5" target="_blank" title="<?php _e('Rate it 5', 'image-watermark'); ?>"><?php _e('Rate it 5', 'image-watermark'); ?></a> <?php _e('on WordPress.org', 'image-watermark'); ?><br />
+						<?php _e('Blog about it & link to the','image-watermark'); ?> <a href="http://dfactory.eu/plugins/image-watermark/" target="_blank" title="<?php _e('plugin page', 'image-watermark'); ?>"><?php _e('plugin page', 'image-watermark'); ?></a><br />
+		                <?php _e('Check out our other', 'image-watermark'); ?> <a href="http://dfactory.eu/plugins/" target="_blank" title="<?php _e('WordPress plugins', 'image-watermark'); ?>"><?php _e('WordPress plugins', 'image-watermark'); ?></a>
+		                </p>
+		                <hr />
+		                <p class="df-link inner"><?php _e('Created by', 'restrict-widgets'); ?><a href="http://www.dfactory.eu" target="_blank" title="dFactory - Quality plugins for WordPress"><img src="<?php echo plugins_url( 'images/logo-dfactory.png' , __FILE__ ); ?>" title="dFactory - Quality plugins for WordPress" alt="dFactory - Quality plugins for WordPress" /></a></p>
+					</div>
+				</div>
 
-					<?php
-						if($watermark_image['url'] !== NULL && $watermark_image['url'] != 0)
-						{
-							$image = wp_get_attachment_image_src($watermark_image['url'], array(300, 300), FALSE);
-							$imageSelected = TRUE;
-						}
-						else $imageSelected = FALSE;
-					?>
+            <form method="post" action="">
+            	<h3><?php echo __('General settings', 'image-watermark'); ?></h3>
+                <table id="watermark-general-table" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Automatic watermarking', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="run-watermark">
+                                    <label for="plugin_on"><?php echo __('on', 'image-watermark'); ?></label>
+                                    <input type="radio" id="plugin_on" value="0" name="df_watermark_image[plugin_off]" <?php checked($watermark_image['plugin_off'], 0, TRUE); ?> />
+                                    <label for="plugin_off"><?php echo __('off', 'image-watermark'); ?></label>
+                                    <input type="radio" id="plugin_off" value="1" name="df_watermark_image[plugin_off]" <?php checked($watermark_image['plugin_off'], 1, TRUE); ?> />
+                                </div>
+                                <p class="description"><?php echo __('Enable or disable watermark for uploaded images.', 'image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
+				<table id="watermark-manual-table" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Manual watermarking', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="run-manual-watermark">
+                                    <label for="manual_watermarking_on"><?php echo __('on', 'image-watermark'); ?></label>
+                                    <input type="radio" id="manual_watermarking_on" value="1" name="df_watermark_image[manual_watermarking]" <?php checked($watermark_image['manual_watermarking'], 1, TRUE); ?> />
+                                    <label for="manual_watermarking_off"><?php echo __('off', 'image-watermark'); ?></label>
+                                    <input type="radio" id="manual_watermarking_off" value="0" name="df_watermark_image[manual_watermarking]" <?php checked($watermark_image['manual_watermarking'], 0, TRUE); ?> />
+                                </div>
+                                <p class="description"><?php echo __('Enable or disable Apply Watermark option for images in Media Library.', 'image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
+                <table id="watermark-for-table" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Enable watermark for', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="thumbnail-select">
+									<?php foreach($this->_image_sizes as $image_size) : ?>
+                                        <input name="df_watermark_on[<?php echo $image_size; ?>]" type="checkbox" id="<?php echo $image_size; ?>" value="1" <?php echo (in_array($image_size, array_keys($watermark_on)) ? ' checked="checked"' : ''); ?> />
+                                        <label for="<?php echo $image_size; ?>"><?php echo $image_size; ?></label>
+                                    <?php endforeach; ?>
+                                </div>
+                                <p class="description"><?php echo __('Check image sizes on which watermark should appear.<br /><strong>IMPORTANT:</strong> checking full size is NOT recommended as it\'s the original image. You may need it later - for removing or changing watermark, image sizes regeneration or any other image manipulations. Use it only if you know what you are doing.', 'image-watermark'); ?></p>
+                                <?php $watermark_cpt_on = array_keys(get_option('df_watermark_cpt_on'));
+								if(in_array('everywhere', $watermark_cpt_on) && count($watermark_cpt_on) === 1)
+								{ $first_checked = TRUE; $second_checked = FALSE; $watermark_cpt_on = array(); }
+								else { $first_checked = FALSE; $second_checked = TRUE; } ?>
+								<div id="cpt-specific">
+									<input id="df_option_everywhere" type="radio" name="df_watermark_cpt_on" value="everywhere" <?php echo ($first_checked === TRUE ? 'checked="checked"' : ''); ?>/><label for="df_option_everywhere"><?php _e('everywhere', 'image-watermark'); ?></label>
+									<input id="df_option_cpt" type="radio" name="df_watermark_cpt_on" value="specific" <?php echo ($second_checked === TRUE ? 'checked="checked"' : ''); ?> /><label for="df_option_cpt"><?php _e('on selected post types only', 'image-watermark'); ?></label>
+								</div>
+								<div id="cpt-select" <?php echo ($second_checked === FALSE ? 'style="display: none;"' : ''); ?>>
+									<?php foreach($this->getCustomPostTypes() as $cpt) : ?>
+                                        <input name="df_watermark_cpt_on_type[<?php echo $cpt; ?>]" type="checkbox" id="<?php echo $cpt; ?>" value="1" <?php echo (in_array($cpt, $watermark_cpt_on) ? ' checked="checked"' : ''); ?> />
+                                        <label for="<?php echo $cpt; ?>"><?php echo $cpt; ?></label>
+                                    <?php endforeach; ?>
+									</div>
+                                <p class="description"><?php echo __('Check custom post types on which watermark should be applied to uploaded images.', 'image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
+				<table id="watermark-general-table-front" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Automatic frontend watermarking', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="run-watermark-front">
+                                    <label for="frontend_active"><?php echo __('on', 'image-watermark'); ?></label>
+                                    <input type="radio" id="frontend_active" value="1" name="df_watermark_image[frontend_active]" <?php checked($watermark_image['frontend_active'], TRUE, TRUE); ?> />
+                                    <label for="frontend_inactive"><?php echo __('off', 'image-watermark'); ?></label>
+                                    <input type="radio" id="frontend_inactive" value="0" name="df_watermark_image[frontend_active]" <?php checked($watermark_image['frontend_active'], FALSE, TRUE); ?> />
+                                </div>
+                                <p class="description"><?php echo __('Enable or disable watermark for frontend image uploading. (uploading script is not included, but you may use a plugin or custom code). <strong>Notice:</strong> This functionality works only if uploaded images are processed using WordPress native upload methods.', 'image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
+				<table id="watermark-general-table-deactivation" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Plugin deactivation', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="deactivation-delete">
+                                    <label for="deactivate_on"><?php echo __('on', 'image-watermark'); ?></label>
+                                    <input type="radio" id="deactivate_on" value="1" name="df_watermark_image[deactivation_delete]" <?php checked($watermark_image['deactivation_delete'], TRUE, TRUE); ?> />
+                                    <label for="deactivate_off"><?php echo __('off', 'image-watermark'); ?></label>
+                                    <input type="radio" id="deactivate_off" value="0" name="df_watermark_image[deactivation_delete]" <?php checked($watermark_image['deactivation_delete'], FALSE, TRUE); ?> />
+                                </div>
+                                <p class="description"><?php echo __('Delete all database settings on plugin deactivation.', 'image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
+                <hr />
+                <h3><?php echo __('Watermark position', 'image-watermark'); ?></h3>
+                <table id="watermark-position-table" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Watermark alignment','image-watermark'); ?></th>
+                        <td>
+                            <fieldset>
+                                <table id="watermark_position" border="1">
+                                    <?php $watermark_position = $watermark_image['position']; ?>
+                                    <?php foreach($this->_watermark_positions['y'] as $y) : ?>
+                                    <tr>
+                                        <?php foreach($this->_watermark_positions['x'] as $x) : ?>
+                                        <td title="<?php echo ucfirst($y . ' ' . $x); ?>">
+                                            <input name="df_watermark_image[position]" type="radio" value="<?php echo $y . '_' . $x; ?>"<?php echo ($watermark_position == $y . '_' . $x ? ' checked="checked"' : NULL); ?> />
+                                        </td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </table>
+                                <p class="description"><?php echo __('Choose the position of watermark image.','image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Watermark offset','image-watermark'); ?></th>
+                        <td>
+                            <fieldset>
+                                <?php echo __('x:','image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[offset_width]" value="<?php echo $watermark_image['offset_width']; ?>"> <?php echo __('px','image-watermark'); ?>
+                                <br />
+                                <?php echo __('y:','image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[offset_height]" value="<?php echo $watermark_image['offset_height']; ?>"> <?php echo __('px','image-watermark'); ?>
+                            </fieldset>
+                        </td>
+                    </tr>
+                </table>
+                <hr />
 
-                    <h3><?php echo __('Watermark image','image-watermark'); ?></h3>
-                    <p class="howto"><?php echo __('Configure your watermark image. Allowed file formats are: JPEG, PNG, GIF.','image-watermark'); ?></p>
-                    <table id="watermark-image-table" class="form-table">
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Watermark image','image-watermark'); ?></th>
-                            <td>
-								<input id="upload_image" type="hidden" name="df_watermark_image[url]" value="<?php echo (int)$watermark_image['url']; ?>" />
-                                <input id="upload_image_button" type="button" class="button button-secondary" value="<?php echo __('Select image','image-watermark'); ?>" />
-                                <input id="turn_off_image_button" type="button" class="button button-secondary" value="<?php echo __('Turn off image','image-watermark'); ?>" <?php if($imageSelected === FALSE) echo 'disabled="disabled"'; ?>/>
-								<p class="howto"><?php _e('You have to save changes after the selection or removal of the image.', 'image-watermark'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Watermark preview', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="previewImg_imageDiv">
-                                        <?php if($imageSelected === TRUE) {
-										$image = wp_get_attachment_image_src($watermark_image['url'], array(300, 300), FALSE);
-										?>
-                                        <img id="previewImg_image" src="<?php echo $image[0]; ?>" alt="" width="300" />
-                                        <?php } else { ?>
-										<img id="previewImg_image" src="" alt="" width="300" style="display: none;" />
-										<?php } ?>
-                                    </div>
-                                    <p id="previewImageInfo" class="howto">
-										<?php
-										if($imageSelected === FALSE)
-										{
-											_e('Watermak has not been selected yet.', 'image-watermark');
-										}
-										else
-										{
-											$imageFullSize = wp_get_attachment_image_src($watermark_image['url'], 'full', FALSE);
+				<?php
+					if($watermark_image['url'] !== NULL && $watermark_image['url'] != 0)
+					{
+						$image = wp_get_attachment_image_src($watermark_image['url'], array(300, 300), FALSE);
+						$imageSelected = TRUE;
+					}
+					else $imageSelected = FALSE;
+				?>
 
-											_e('Original size', 'image-watermark').': '.$imageFullSize[1].' px / '.$imageFullSize[2].' px';
-										}
-										?>
-									</p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php _e('Watermark size', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <div id="watermark-type">
-										<label for="type1"><?php _e('original', 'image-watermark'); ?></label>
-										<input type="radio" id="type1" value="0" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 0, TRUE); ?> />
-										<label for="type2"><?php _e('custom', 'image-watermark'); ?></label>
-										<input type="radio" id="type2" value="1" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 1, TRUE); ?> />
-										<label for="type3"><?php _e('scaled', 'image-watermark'); ?></label>
-										<input type="radio" id="type3" value="2" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 2, TRUE); ?> />
-                                    </div>
-                                    <p class="howto"><?php _e('Select method of aplying watermark size.', 'image-watermark'); ?></p>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr valign="top" id="watermark_size_custom">
-                            <th scope="row"><?php _e('Watermark custom size', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-                                    <?php _e('x:', 'image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[absolute_width]" value="<?php echo $watermark_image['absolute_width']; ?>"> <?php _e('px', 'image-watermark'); ?>
-                                    <br />
-                                    <?php _e('y:', 'image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[absolute_height]" value="<?php echo $watermark_image['absolute_height']; ?>"> <?php _e('px','image-watermark'); ?>
-                                </fieldset>
-                                <p class="howto"><?php _e('Those dimensions will be used if "custom" method is selected above.', 'image-watermark'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top" id="watermark_size_scale">
-                            <th scope="row"><?php _e('Scale of watermark in relation to image width', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-									<div>
-										<input type="text" id="iw_size_input" maxlength="3" class="hide-if-js" name="df_watermark_image[width]" value="<?php echo $watermark_image['width']; ?>" />
-										<div class="wplike-slider">
-											<span class="left hide-if-no-js">0</span><span class="middle" id="iw_size_span" title="<?php echo $watermark_image['width']; ?>"></span><span class="right hide-if-no-js">100</span>
-										</div>
+                <h3><?php echo __('Watermark image','image-watermark'); ?></h3>
+                <p class="description"><?php echo __('Configure your watermark image. Allowed file formats are: JPEG, PNG, GIF.','image-watermark'); ?></p>
+                <table id="watermark-image-table" class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Watermark image','image-watermark'); ?></th>
+                        <td>
+							<input id="upload_image" type="hidden" name="df_watermark_image[url]" value="<?php echo (int)$watermark_image['url']; ?>" />
+                            <input id="upload_image_button" type="button" class="button button-secondary" value="<?php echo __('Select image','image-watermark'); ?>" />
+                            <input id="turn_off_image_button" type="button" class="button button-secondary" value="<?php echo __('Turn off image','image-watermark'); ?>" <?php if($imageSelected === FALSE) echo 'disabled="disabled"'; ?>/>
+							<p class="description"><?php _e('You have to save changes after the selection or removal of the image.', 'image-watermark'); ?></p>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php echo __('Watermark preview', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="previewImg_imageDiv">
+                                    <?php if($imageSelected === TRUE) {
+									$image = wp_get_attachment_image_src($watermark_image['url'], array(300, 300), FALSE);
+									?>
+                                    <img id="previewImg_image" src="<?php echo $image[0]; ?>" alt="" width="300" />
+                                    <?php } else { ?>
+									<img id="previewImg_image" src="" alt="" width="300" style="display: none;" />
+									<?php } ?>
+                                </div>
+                                <p id="previewImageInfo" class="description">
+									<?php
+									if($imageSelected === FALSE)
+									{
+										_e('Watermak has not been selected yet.', 'image-watermark');
+									}
+									else
+									{
+										$imageFullSize = wp_get_attachment_image_src($watermark_image['url'], 'full', FALSE);
+
+										_e('Original size', 'image-watermark').': '.$imageFullSize[1].' px / '.$imageFullSize[2].' px';
+									}
+									?>
+								</p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php _e('Watermark size', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <div id="watermark-type">
+									<label for="type1"><?php _e('original', 'image-watermark'); ?></label>
+									<input type="radio" id="type1" value="0" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 0, TRUE); ?> />
+									<label for="type2"><?php _e('custom', 'image-watermark'); ?></label>
+									<input type="radio" id="type2" value="1" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 1, TRUE); ?> />
+									<label for="type3"><?php _e('scaled', 'image-watermark'); ?></label>
+									<input type="radio" id="type3" value="2" name="df_watermark_image[watermark_size_type]" <?php checked($watermark_image['watermark_size_type'], 2, TRUE); ?> />
+                                </div>
+                                <p class="description"><?php _e('Select method of aplying watermark size.', 'image-watermark'); ?></p>
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr valign="top" id="watermark_size_custom">
+                        <th scope="row"><?php _e('Watermark custom size', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+                                <?php _e('x:', 'image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[absolute_width]" value="<?php echo $watermark_image['absolute_width']; ?>"> <?php _e('px', 'image-watermark'); ?>
+                                <br />
+                                <?php _e('y:', 'image-watermark'); ?> <input type="text" size="5"  name="df_watermark_image[absolute_height]" value="<?php echo $watermark_image['absolute_height']; ?>"> <?php _e('px','image-watermark'); ?>
+                            </fieldset>
+                            <p class="description"><?php _e('Those dimensions will be used if "custom" method is selected above.', 'image-watermark'); ?></p>
+                        </td>
+                    </tr>
+                    <tr valign="top" id="watermark_size_scale">
+                        <th scope="row"><?php _e('Scale of watermark in relation to image width', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+								<div>
+									<input type="text" id="iw_size_input" maxlength="3" class="hide-if-js" name="df_watermark_image[width]" value="<?php echo $watermark_image['width']; ?>" />
+									<div class="wplike-slider">
+										<span class="left hide-if-no-js">0</span><span class="middle" id="iw_size_span" title="<?php echo $watermark_image['width']; ?>"></span><span class="right hide-if-no-js">100</span>
 									</div>
-                                </fieldset>
-                                <p class="howto"><?php _e('This value will be used if "scaled" method if selected above. <br />Enter a number ranging from 0 to 100. 100 makes width of watermark image equal to width of the image it is applied to.', 'image-watermark'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php _e('Watermark transparency / opacity', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-									<div>
-										<input type="text" id="iw_opacity_input" maxlength="3" class="hide-if-js" name="df_watermark_image[transparent]" value="<?php echo $watermark_image['transparent']; ?>" />
-										<div class="wplike-slider">
-											<span class="left hide-if-no-js">0</span><span class="middle" id="iw_opacity_span" title="<?php echo $watermark_image['transparent']; ?>"></span><span class="right hide-if-no-js">100</span>
-										</div>
+								</div>
+                            </fieldset>
+                            <p class="description"><?php _e('This value will be used if "scaled" method if selected above. <br />Enter a number ranging from 0 to 100. 100 makes width of watermark image equal to width of the image it is applied to.', 'image-watermark'); ?></p>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php _e('Watermark transparency / opacity', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+								<div>
+									<input type="text" id="iw_opacity_input" maxlength="3" class="hide-if-js" name="df_watermark_image[transparent]" value="<?php echo $watermark_image['transparent']; ?>" />
+									<div class="wplike-slider">
+										<span class="left hide-if-no-js">0</span><span class="middle" id="iw_opacity_span" title="<?php echo $watermark_image['transparent']; ?>"></span><span class="right hide-if-no-js">100</span>
 									</div>
-                                </fieldset>
-                                <p class="howto"><?php _e('Enter a number ranging from 0 to 100. 0 makes watermark image completely transparent, 100 shows it as is.', 'image-watermark'); ?></p>
-                            </td>
-                        </tr>
-						<tr valign="top">
-                            <th scope="row"><?php _e('Image quality', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-									<div>
-										<input type="text" id="iw_quality_input" maxlength="3" class="hide-if-js" name="df_watermark_image[quality]" value="<?php echo $watermark_image['quality']; ?>" />
-										<div class="wplike-slider">
-											<span class="left hide-if-no-js">0</span><span class="middle" id="iw_quality_span" title="<?php echo $watermark_image['quality']; ?>"></span><span class="right hide-if-no-js">100</span>
-										</div>
+								</div>
+                            </fieldset>
+                            <p class="description"><?php _e('Enter a number ranging from 0 to 100. 0 makes watermark image completely transparent, 100 shows it as is.', 'image-watermark'); ?></p>
+                        </td>
+                    </tr>
+					<tr valign="top">
+                        <th scope="row"><?php _e('Image quality', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+								<div>
+									<input type="text" id="iw_quality_input" maxlength="3" class="hide-if-js" name="df_watermark_image[quality]" value="<?php echo $watermark_image['quality']; ?>" />
+									<div class="wplike-slider">
+										<span class="left hide-if-no-js">0</span><span class="middle" id="iw_quality_span" title="<?php echo $watermark_image['quality']; ?>"></span><span class="right hide-if-no-js">100</span>
 									</div>
-                                </fieldset>
-                                <p class="howto"><?php _e('Set output image quality.', 'image-watermark'); ?></p>
-                            </td>
-                        </tr>
-						<tr valign="top">
-                            <th scope="row"><?php _e('Image format', 'image-watermark'); ?></th>
-                            <td class="wr_width">
-                                <fieldset class="wr_width">
-									<div id="jpeg-format">
-                                        <label for="baseline"><?php _e('baseline', 'image-watermark'); ?></label>
-                                        <input type="radio" id="baseline" value="baseline" name="df_watermark_image[jpeg_format]" <?php checked($watermark_image['jpeg_format'], 'baseline', TRUE); ?> />
-                                        <label for="progressive"><?php _e('progressive', 'image-watermark'); ?></label>
-                                        <input type="radio" id="progressive" value="progressive" name="df_watermark_image[jpeg_format]" <?php checked($watermark_image['jpeg_format'], 'progressive', TRUE); ?> />
-                                    </div>
-                                </fieldset>
-                                <p class="howto"><?php _e('Select baseline or progressive image format.', 'image-watermark'); ?></p>
-                            </td>
-                        </tr>
-                    </table>
-                    <input type="hidden" name="action" value="update" />
-                    <hr />
-                    <h3><?php _e('Image protection', 'image-watermark'); ?></h3>
-                    <table id="watermark-protection-table" class="form-table">
-                        <tr>
-                            <th><?php _e('Disable right mouse click on images', 'image-watermark'); ?></th>
-                            <td><input type="checkbox" <?php checked($image_protection['rightclick'], 1, TRUE); ?> value="1" name="df_image_protection[rightclick]"></td>
-                        </tr>
-                        <tr>
-                            <th><?php _e('Prevent drag and drop', 'image-watermark'); ?></th>
-                            <td><input type="checkbox" <?php checked($image_protection['draganddrop'], 1, TRUE); ?> value="1" name="df_image_protection[draganddrop]"></td>
-                        </tr>
-                        <tr>
-                            <th><?php _e('Enable image protection for logged-in users also', 'image-watermark'); ?></th>
-                            <td><input type="checkbox" <?php checked($image_protection['forlogged'], 1, TRUE); ?> value="1" name="df_image_protection[forlogged]"></td>
-                        </tr>
-                    </table>
-                    <hr />
-                    <input type="submit" id="watermark-submit" class="button button-primary" name="submit" value="<?php _e('Save Changes', 'image-watermark'); ?>" />
-					<input type="submit" id="watermark-reset" class="button button-secondary" name="reset" value="<?php _e('Reset to defaults', 'image-watermark'); ?>" />
-                </form>
-            </div>
+								</div>
+                            </fieldset>
+                            <p class="description"><?php _e('Set output image quality.', 'image-watermark'); ?></p>
+                        </td>
+                    </tr>
+					<tr valign="top">
+                        <th scope="row"><?php _e('Image format', 'image-watermark'); ?></th>
+                        <td class="wr_width">
+                            <fieldset class="wr_width">
+								<div id="jpeg-format">
+                                    <label for="baseline"><?php _e('baseline', 'image-watermark'); ?></label>
+                                    <input type="radio" id="baseline" value="baseline" name="df_watermark_image[jpeg_format]" <?php checked($watermark_image['jpeg_format'], 'baseline', TRUE); ?> />
+                                    <label for="progressive"><?php _e('progressive', 'image-watermark'); ?></label>
+                                    <input type="radio" id="progressive" value="progressive" name="df_watermark_image[jpeg_format]" <?php checked($watermark_image['jpeg_format'], 'progressive', TRUE); ?> />
+                                </div>
+                            </fieldset>
+                            <p class="description"><?php _e('Select baseline or progressive image format.', 'image-watermark'); ?></p>
+                        </td>
+                    </tr>
+                </table>
+                <input type="hidden" name="action" value="update" />
+                <hr />
+                <h3><?php _e('Image protection', 'image-watermark'); ?></h3>
+                <table id="watermark-protection-table" class="form-table">
+                    <tr>
+                        <th><?php _e('Disable right mouse click on images', 'image-watermark'); ?></th>
+                        <td><input type="checkbox" <?php checked((!empty($image_protection['rightclick']) ? 1 : 0), 1, TRUE); ?> value="1" name="df_image_protection[rightclick]"></td>
+                    </tr>
+                    <tr>
+                        <th><?php _e('Prevent drag and drop', 'image-watermark'); ?></th>
+                        <td><input type="checkbox" <?php checked((!empty($image_protection['draganddrop']) ? 1 : 0), 1, TRUE); ?> value="1" name="df_image_protection[draganddrop]"></td>
+                    </tr>
+                    <tr>
+                        <th><?php _e('Enable image protection for logged-in users also', 'image-watermark'); ?></th>
+                        <td><input type="checkbox" <?php checked((!empty($image_protection['forlogged']) ? 1 : 0), 1, TRUE); ?> value="1" name="df_image_protection[forlogged]"></td>
+                    </tr>
+                </table>
+                <hr />
+                <input type="submit" id="watermark-submit" class="button button-primary" name="submit" value="<?php _e('Save Changes', 'image-watermark'); ?>" />
+				<input type="submit" id="watermark-reset" class="button button-secondary" name="reset" value="<?php _e('Reset to defaults', 'image-watermark'); ?>" />
+            </form>
         </div>
-        <div id="df-credits" class="postbox-container">
-        	<h3 class="metabox-title"><?php _e('Image Watermark', 'image-watermark'); ?></h3>
-            <div class="inner">
-                <h3><?php _e('Need support?', 'image-watermark'); ?></h3>
-                <p><?php _e('If you are having problems with this plugin, please talk about them in the', 'image-watermark'); ?> <a href="http://dfactory.eu/support/" target="_blank" title="<?php _e('Support forum', 'image-watermark'); ?>"><?php _e('Support forum', 'image-watermark'); ?></a></p>
-                <hr />
-                <h3><?php _e('Do you like this plugin?', 'image-watermark'); ?></h3>
-                <p><a href="http://wordpress.org/support/view/plugin-reviews/image-watermark?filter=5" target="_blank" title="<?php _e('Rate it 5', 'image-watermark'); ?>"><?php _e('Rate it 5', 'image-watermark'); ?></a> <?php _e('on WordPress.org', 'image-watermark'); ?><br />
-				<?php _e('Blog about it & link to the','image-watermark'); ?> <a href="http://dfactory.eu/plugins/image-watermark/" target="_blank" title="<?php _e('plugin page', 'image-watermark'); ?>"><?php _e('plugin page', 'image-watermark'); ?></a><br />
-                <?php _e('Check out our other', 'image-watermark'); ?> <a href="http://dfactory.eu/plugins/" target="_blank" title="<?php _e('WordPress plugins', 'image-watermark'); ?>"><?php _e('WordPress plugins', 'image-watermark'); ?></a>
-                </p>
-                <hr />
-                <p class="df-link"><?php _e('Created by', 'restrict-widgets'); ?><a href="http://www.dfactory.eu" target="_blank" title="dFactory - Quality plugins for WordPress"><img src="<?php echo plugins_url( 'images/logo-dfactory.png' , __FILE__ ); ?>" title="dFactory - Quality plugins for WordPress" alt="dFactory - Quality plugins for WordPress" /></a></p>
-			</div>
-      	</div>
 	</div>
 	<?php
 	}
@@ -994,11 +997,11 @@ class Image_Watermark
 		$opt_cpt = get_option('df_watermark_cpt_on');
 		$opt_won = get_option('df_watermark_on');
 
-		$post = get_post($attachment_id);
-		$post_id = (int)$post->post_parent;
+		$post = get_post((int)$attachment_id);
+		$post_id = (!empty($post) ? (int)$post->post_parent : 0);
 
-		//if something is wrong we dont apply the watermark
-		if(($attachment_id === 'manual' || $this->is_admin === TRUE) && !((isset($opt_cpt[0]) && $opt_cpt[0] === 'everywhere') || ($post_id > 0 && in_array(get_post_type($post_id), array_keys($opt_cpt)) === TRUE)))
+		//something went wrong or is it automatic mode?
+		if($attachment_id !== 'manual' && ($this->is_admin === TRUE && !((isset($opt_cpt[0]) && $opt_cpt[0] === 'everywhere') || ($post_id > 0 && in_array(get_post_type($post_id), array_keys($opt_cpt)) === TRUE))))
 			return $data;
 
 		if(apply_filters('iw_watermark_display', $attachment_id) === FALSE)
@@ -1139,8 +1142,16 @@ class Image_Watermark
 		elseif($size_type === 2) //scale
 		{
 			$ratio = $img_width * $opt['df_watermark_image']['width'] / 100 / $watermark_width;
+
 			$w = (int)($watermark_width * $ratio);
 			$h = (int)($watermark_height * $ratio);
+
+			//if watermark scaled height is bigger then image watermark
+			if($h > $img_height)
+			{
+				$w = (int)($img_height * $w / $h);
+				$h = $img_height;
+			}
 		}
 		else //original
 		{
