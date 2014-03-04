@@ -9,6 +9,9 @@ var df_nrc_targSrc=null;
 var df_nrc_inContext=false;
 var df_nrc_notimage=new Image();
 var df_nrc_limit=0;
+var df_nrc_extra = norightclick_args.rightclick;
+var df_nrc_drag = norightclick_args.draganddrop;
+
 function df_nrc_dragdropAll(event) {
 	try {
 		var ev=event||window.event;
@@ -38,6 +41,7 @@ function df_nrc_dragdropAll(event) {
 	}
 	return true;
 }
+
 function df_nrc_dragdrop(event) {
 	// I am beginning to doubt if this event ever fires
 	try {
@@ -55,6 +59,7 @@ function df_nrc_dragdrop(event) {
 	}
 	return true;
 }
+
 function df_nrc_context(event) {
 	try {
 		df_nrc_inContext=true;
@@ -72,6 +77,7 @@ function df_nrc_context(event) {
 	}
 	return false;
 }
+
 function df_nrc_contextAll(event) {
 	try {
 		if (df_nrc_targImg==null) {
@@ -95,6 +101,7 @@ function df_nrc_contextAll(event) {
 	}
 	return false;
 }
+
 function kpg_nrc1_mousedown(event) {
 	try {
 		df_nrc_inContext=false;
@@ -116,6 +123,7 @@ function kpg_nrc1_mousedown(event) {
 	}
 	return true;
 }
+
 function kpg_nrc1_mousedownAll(event) {
 	try {
 		df_nrc_inContext=false;
@@ -142,6 +150,7 @@ function kpg_nrc1_mousedownAll(event) {
 	}
 	return true;
 }
+
 function df_nrc_replace(targ) {
 return false;
 	if (df_nrc_targImg!=null && df_nrc_targImg.src==df_nrc_notimage.src) {
@@ -164,6 +173,7 @@ return false;
 	var t=setTimeout("df_nrc_restore()",500);
 	return false;
 }
+
 function df_nrc_restore() {
 	if (df_nrc_inContext) {
 		if (df_nrc_limit<=20) {
@@ -180,6 +190,7 @@ function df_nrc_restore() {
 	df_nrc_targSrc=null;
 	return;
 }
+
 // sets the image onclick event
 // need to check for dblclick to see if there is a right double click in IE
 function df_nrc_action(event) {
@@ -199,6 +210,7 @@ function df_nrc_action(event) {
 		return false;
 	}
 }
+
 if (document.addEventListener) {
 	document.addEventListener("DOMContentLoaded", function(event) { df_nrc_action(event); }, false);
 } else if (window.attachEvent) {
@@ -212,7 +224,3 @@ if (document.addEventListener) {
 			df_nrc_action('load');
 	};
 }
-
-
-var df_nrc_extra = norightclick_args.rightclick;
-var df_nrc_drag = norightclick_args.draganddrop;

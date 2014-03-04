@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
-Version: 1.3.0
+Version: 1.3.1
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -69,7 +69,7 @@ class Image_Watermark
 			'draganddrop' => 0,
 			'forlogged' => 0,
 		),
-		'version' => '1.3.0'
+		'version' => '1.3.1'
 	);
 
 
@@ -385,9 +385,10 @@ class Image_Watermark
 	{
 		$options = get_option('df_image_protection');
 
-		$options['forlogged'] = (!empty($image_protection['forlogged']) ? 1 : 0);
-		$options['draganddrop'] = (!empty($image_protection['draganddrop']) ? 1 : 0);
-		$options['rightclick'] = (!empty($image_protection['rightclick']) ? 1 : 0);
+		// backward compatibility options
+		$options['forlogged'] = (!empty($options['forlogged']) ? 1 : 0);
+		$options['draganddrop'] = (!empty($options['draganddrop']) ? 1 : 0);
+		$options['rightclick'] = (!empty($options['rightclick']) ? 1 : 0);
 
 		if(($options['forlogged'] == 0 && is_user_logged_in()) || ($options['draganddrop'] == 0 && $options['rightclick'] == 0))
 			return;

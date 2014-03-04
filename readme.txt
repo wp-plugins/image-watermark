@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
 Tested up to: 3.8.1
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -58,6 +58,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.1 =
+* Fix: Option to disable right click on images not working 
 
 = 1.3.0 =
 * Tweak: Manual watermarking now works even if selected post types are selected
@@ -121,7 +124,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.0 =
-* Tweak: Manual watermarking now works even if selected post types are selected
-* Tweak: UI improvements for WP 3.8
-* Fix: Image protection options not saving properly
+= 1.3.1 =
+* Fix: Option to disable right click on images not working
