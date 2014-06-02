@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -40,6 +40,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Chinese - by [xiaoyaole](http://www.luoxiao123.cn/)
 * German - by Matthias Siebler
 * Polish - by Bartosz Arendt
+* Russian - by [Sly](http://wpguru.ru)
 
 
 == Installation ==
@@ -59,6 +60,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.3 =
+* New: RUssian translation, thanks to [Sly](http://wpguru.ru)
 
 = 1.3.2 =
 * New: Chinese translation, thanks to [xiaoyaole](http://www.luoxiao123.cn/)
@@ -128,5 +132,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.2 =
-* New: Chinese translation, thanks to [xiaoyaole](http://www.luoxiao123.cn/)
+= 1.3.3 =
+* New: RUssian translation, thanks to [Sly](http://wpguru.ru)

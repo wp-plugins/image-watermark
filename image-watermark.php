@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
-Version: 1.3.1
+Version: 1.3.3
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -69,7 +69,7 @@ class Image_Watermark
 			'draganddrop' => 0,
 			'forlogged' => 0,
 		),
-		'version' => '1.3.2'
+		'version' => '1.3.3'
 	);
 
 
